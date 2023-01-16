@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    cert-manager.io/cluster-issuer: glueops-cert-zerossl-prod
+spec:
+  ingressClassName: external-ingress-nginx
+  # hosts:
+  #   - host: test-app.gcp.glueops.rocks
+  rules:
+  - host: {{ .Values.domain }}
+    http:
+      paths:
+        - backend:
+            service:
+              name: {{ .Release.Name }}
+              port:
+                number: {{ .Values.containerPort }}
+          path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Release.Name }}-tls
+      hosts:
+        - {{ .Values.domain }}

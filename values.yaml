@@ -8,4 +8,5 @@ appName: antoniostacos-home-page
 image: glueops/tacos_app_react_js:v0.2.2
 containerPort: 3000
 domain: <your-domain-goes-here>
+vault_path: <your-vault-path-goes-here>
 

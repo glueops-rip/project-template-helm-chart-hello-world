@@ -21,8 +21,8 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.containerPort }}
-        env:
-        {{ range $k, $v := .Values.env }}
-          - name: {{ $k | quote }}
-            value: {{ $v | quote }}
-        {{- end }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name }}
+
+          

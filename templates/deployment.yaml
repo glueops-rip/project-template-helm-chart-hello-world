@@ -21,8 +21,10 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.containerPort }}
+        {{- if ne .Values.vault_path "nil" }}
         envFrom:
         - secretRef:
             name: {{ .Release.Name }}
+        {{- end }}
 
           

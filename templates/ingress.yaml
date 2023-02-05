@@ -9,7 +9,7 @@ spec:
   # hosts:
   #   - host: test-app.gcp.glueops.rocks
   rules:
-  - host: {{ .Release.Name }}.apps.*
+  - host: {{ .Values.domain }}
     http:
       paths:
         - backend:

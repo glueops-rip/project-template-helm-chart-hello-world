@@ -5,6 +5,6 @@
 replicaCount: 1
 image: glueops/tacos_app_react_js:v0.2.2
 containerPort: 3000
-domain: <your-domain-goes-here>
+domain: <name>.apps.<cluster-environment-name>.<companykey>.glueopshosted.rocks
 vault_path: nil
 

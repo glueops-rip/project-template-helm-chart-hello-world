@@ -9,6 +9,17 @@ spec:
   # hosts:
   #   - host: test-app.gcp.glueops.rocks
   rules:
+  - host: {{ .Release.Name }}.apps.test-10-np.venkata.glueopshosted.rocks
+    http:
+      paths:
+        - backend:
+            service:
+              name: {{ .Release.Name }}
+              port:
+                number: {{ .Values.containerPort }}
+          path: /
+          pathType: Prefix
+{{- if ne .Values.domain "nil" }}
   - host: {{ .Values.domain }}
     http:
       paths:
@@ -19,7 +30,11 @@ spec:
                 number: {{ .Values.containerPort }}
           path: /
           pathType: Prefix
+{{- end}}
   tls:
     - secretName: {{ .Release.Name }}-tls
       hosts:
+        - {{ .Release.Name }}.apps.test-10-np.venkata.glueopshosted.rocks
+{{- if ne .Values.domain "nil" }}
         - {{ .Values.domain }}
+{{- end}}

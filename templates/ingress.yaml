@@ -36,5 +36,7 @@ spec:
       hosts:
         - {{ .Release.Name }}.apps.test-10-np.venkata.glueopshosted.rocks
 {{- if ne .Values.domain "nil" }}
+    - secretName: {{ .Release.Name }}-tls-customer-domain
+      hosts:
         - {{ .Values.domain }}
 {{- end}}

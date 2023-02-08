@@ -3,7 +3,9 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-image: glueops/tacos_app_react_js:v0.2.2
+image:
+  name: glueops/tacos_app_react_js
+  tag: v0.2.2
 containerPort: 3000
 #<name>.apps.<cluster-environment-name>.<companykey>.glueopshosted.rocks
 domain: nil 

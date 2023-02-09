@@ -10,4 +10,6 @@ containerPort: 3000
 #<name>.apps.<cluster-environment-name>.<companykey>.glueopshosted.rocks
 domain: nil 
 vault_path: nil
+vault_path_overrides: nil
+
 

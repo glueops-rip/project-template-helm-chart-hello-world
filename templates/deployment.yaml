@@ -20,6 +20,9 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.containerPort }}
+        env: 
+        - name: GLUEOPS_PREVIEW_DOMAIN
+          value: {{ .Release.Name }}.apps.test-11-np.venkata.glueopshosted.rocks
         {{- if ne .Values.vault_path "nil" }}
         envFrom:
         - secretRef:

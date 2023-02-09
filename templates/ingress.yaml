@@ -9,6 +9,17 @@ spec:
   # hosts:
   #   - host: test-app.gcp.glueops.rocks
   rules:
+  - host: {{ .Release.Name }}.apps.nonprod.antoniostacos.glueopshosted.com
+    http:
+      paths:
+        - backend:
+            service:
+              name: {{ .Release.Name }}
+              port:
+                number: {{ .Values.containerPort }}
+          path: /
+          pathType: Prefix
+{{- if ne .Values.domain "nil" }}
   - host: {{ .Values.domain }}
     http:
       paths:
@@ -19,7 +30,10 @@ spec:
                 number: {{ .Values.containerPort }}
           path: /
           pathType: Prefix
+{{- end}}
+{{- if ne .Values.domain "nil" }}
   tls:
-    - secretName: {{ .Release.Name }}-tls
+    - secretName: {{ .Release.Name }}-tls-customer-domain
       hosts:
         - {{ .Values.domain }}
+{{- end}}

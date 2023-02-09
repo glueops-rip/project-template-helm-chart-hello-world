@@ -14,15 +14,25 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ .Release.Name }}
       containers:
       - name: app
-        image: {{ .Values.image }}
+        image: {{ .Values.image.name }}:{{ .Values.image.tag }}
         imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.containerPort }}
-        env:
-        {{ range $k, $v := .Values.env }}
-          - name: {{ $k | quote }}
-            value: {{ $v | quote }}
+        env: 
+        - name: GLUEOPS_PREVIEW_DOMAIN
+          value: {{ .Release.Name }}.apps.nonprod.antoniostacos.glueopshosted.com
+        {{- if ne .Values.vault_path "nil" }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name }}
+        {{- if ne .Values.vault_path_overrides "nil" }}
+        - secretRef:
+            name: {{ .Release.Name }}-overrides
+            optional: true
         {{- end }}
+        {{- end }}
+
+
+          

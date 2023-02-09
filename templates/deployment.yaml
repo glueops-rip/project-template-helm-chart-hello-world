@@ -27,10 +27,6 @@ spec:
         envFrom:
         - secretRef:
             name: {{ .Release.Name }}
-        {{- if ne .Values.vault_path_overrides "nil" }}
-        - secretRef:
-            name: {{ .Release.Name }}-overrides
-        {{- end }}
         {{- end }}
 
 

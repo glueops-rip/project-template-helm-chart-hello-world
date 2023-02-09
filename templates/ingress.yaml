@@ -32,8 +32,9 @@ spec:
           path: /
           pathType: Prefix
 {{- end}}
-{{- if ne .Values.domain "nil" }}
   tls:
+    - host: {{ .Release.Name }}.apps.test-11-np.venkata.glueopshosted.rocks 
+{{- if ne .Values.domain "nil" }}
     - secretName: {{ .Release.Name }}-tls-customer-domain
       hosts:
         - {{ .Values.domain }}

@@ -9,7 +9,7 @@ spec:
   # hosts:
   #   - host: test-app.gcp.glueops.rocks
   rules:
-  - host: {{ .Release.Name }}.apps.test-11-np.venkata.glueopshosted.rocks
+  - host: {{ .Release.Name }}.apps.nonprod.antoniostacos.glueopshosted.com
     http:
       paths:
         - backend:

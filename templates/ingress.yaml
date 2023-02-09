@@ -3,7 +3,6 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
   annotations:
-    nginx.ingress.kubernetes.io/secure: "true"
     cert-manager.io/cluster-issuer: glueops-cert-zerossl-prod
 spec:
   ingressClassName: external-ingress-nginx
@@ -32,9 +31,8 @@ spec:
           path: /
           pathType: Prefix
 {{- end}}
-  tls:
-    - secretName: {{ .Release.Name }}
 {{- if ne .Values.domain "nil" }}
+  tls:
     - secretName: {{ .Release.Name }}-tls-customer-domain
       hosts:
         - {{ .Values.domain }}

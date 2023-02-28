@@ -33,6 +33,10 @@ spec:
             optional: true
         {{- end }}
         {{- end }}
+      {{- if ne .Values.vault_path_registry_credentials "nil" }}
+      imagePullSecrets:
+        - name: {{ .Release.Name }}-reg-cred
+      {{- end }}
 
 
           

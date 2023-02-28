@@ -22,7 +22,7 @@ spec:
         - containerPort: {{ .Values.containerPort }}
         env: 
         - name: GLUEOPS_PREVIEW_DOMAIN
-          value: {{ .Release.Name }}.apps.nonprod.antoniostacos.glueopshosted.com
+          value: {{ .Release.Name }}.apps.{{ .Values.captain_domain }}
         {{- if ne .Values.vault_path "nil" }}
         envFrom:
         - secretRef:
@@ -33,6 +33,10 @@ spec:
             optional: true
         {{- end }}
         {{- end }}
+      {{- if ne .Values.vault_path_registry_credentials "nil" }}
+      imagePullSecrets:
+        - name: {{ .Release.Name }}-reg-cred
+      {{- end }}
 
 
           

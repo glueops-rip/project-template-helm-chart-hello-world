@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
   annotations:
-    cert-manager.io/cluster-issuer: letsecnrypt
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: external-ingress-nginx
   # hosts:

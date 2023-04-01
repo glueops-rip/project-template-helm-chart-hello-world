@@ -3,7 +3,7 @@ on: workflow_dispatch
 
 jobs:
   call-workflow-passing-data:
-    uses: GlueOps/github-workflows/.github/workflows/publish-helm-chart.yml@main
+    uses: GlueOps/github-workflows/.github/workflows/publish-helm-chart.yml@venkata-temp
     secrets: inherit
     with:
       GLUEOPS_ENV: "development"

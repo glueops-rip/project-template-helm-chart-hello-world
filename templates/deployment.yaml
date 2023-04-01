@@ -22,7 +22,7 @@ spec:
         - containerPort: {{ .Values.containerPort }}
         env: 
         - name: GLUEOPS_PREVIEW_DOMAIN
-          value: {{ .Release.Name }}.apps.nonprod.antoniostacos.glueopshosted.com
+          value: {{ .Release.Name }}.apps.nonprod.antoniostacos.onglueops.com
         {{- if ne .Values.vault_path "nil" }}
         envFrom:
         - secretRef:

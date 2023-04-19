@@ -3,9 +3,9 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
   annotations:
-    cert-manager.io/cluster-issuer: glueops-cert-zerossl-prod
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
-  ingressClassName: external-ingress-nginx
+  ingressClassName: public
   # hosts:
   #   - host: test-app.gcp.glueops.rocks
   rules:

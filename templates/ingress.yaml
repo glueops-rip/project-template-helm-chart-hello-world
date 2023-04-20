@@ -9,7 +9,7 @@ spec:
   # hosts:
   #   - host: test-app.gcp.glueops.rocks
   rules:
-  - host: *.apps.first-gcp.bart.onglueops.rocks
+  - host: '*.apps.first-gcp.bart.onglueops.rocks'
     http:
       paths:
         - backend:

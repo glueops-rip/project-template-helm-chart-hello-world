@@ -9,7 +9,7 @@ spec:
   # hosts:
   #   - host: test-app.gcp.glueops.rocks
   rules:
-  - host: {{ .Release.Name }}.apps.{{ .Values.captain_domain }}
+  - host: *.apps.first-gcp.bart.onglueops.rocks
     http:
       paths:
         - backend:
@@ -17,7 +17,7 @@ spec:
               name: {{ .Release.Name }}
               port:
                 number: {{ .Values.containerPort }}
-          path: /
+          path: /(.*)
           pathType: Prefix
 {{- if ne .Values.domain "nil" }}
   - host: {{ .Values.domain }}

@@ -33,6 +33,27 @@ spec:
             optional: true
         {{- end }}
         {{- end }}
+        {{- if and (ne .Values.cpuLimit "nil") ( ne .Values.memoryLimit "nil") ( ne .Values.cpuRequest "nil") ( ne .Values.memoryRequest "nil") }}
+        resources:
+          {{- if and (ne .Values.cpuRequest "nil") (ne .Values.memoryRequest "nil") }}
+          requests:
+            {{- if ne .Values.cpuRequest "nil" }}
+            cpu: {{ .Values.cpuRequest }}
+            {{- end }}
+            {{- if ne .Values.memoryRequest "nil" }}
+            memory: {{ .Values.memoryRequest }}
+            {{- end }}
+          {{- end }}
+          {{- if and (ne .Values.cpuLimit "nil") (ne .Values.memoryLimit "nil") }}
+          limits:
+            {{- if ne .Values.cpuLimit "nil" }}
+            cpu: {{ .Values.cpuLimit }}
+            {{- end }}
+            {{- if ne. Values.memoryLimit "nil" }}
+            memory: {{ .Values.memoryLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
       {{- if ne .Values.vault_path_registry_credentials "nil" }}
       imagePullSecrets:
         - name: {{ .Release.Name }}-reg-cred

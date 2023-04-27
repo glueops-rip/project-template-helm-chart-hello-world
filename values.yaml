@@ -17,5 +17,3 @@ domain: nil
 vault_path: nil
 vault_path_overrides: nil
 vault_path_registry_credentials: nil
-
-

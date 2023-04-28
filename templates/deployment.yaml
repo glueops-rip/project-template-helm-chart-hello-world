@@ -35,22 +35,22 @@ spec:
         {{- end }}
         resources:
           requests:
-            {{- if ne .Values.cpuRequestInM "nil" }}
+            {{- if not .Values.cpuRequestInM }}
             cpu: {{ .Values.cpuRequestInM }}m
             {{- end }}
-            {{- if ne .Values.memoryRequestInMi "nil" }}
+            {{- if not .Values.memoryRequestInMi }}
             memory: {{ .Values.memoryRequestInMi }}Mi
             {{- end }}
           limits:
-            {{- if ne .Values.cpuLimitInM "nil" }}
+            {{- if not .Values.cpuLimitInM }}
             cpu: {{ .Values.cpuLimitInM }}m
-            {{- else if ne .Values.cpuRequestInM "nil" }}
+            {{- else if not .Values.cpuRequestInM }}
             cpu: {{ mul .Values.cpuRequestInM 1.1 }}m
             {{- else }}
             {{- end }}
-            {{- if ne .Values.memoryLimitInMi "nil" }}
+            {{- if not .Values.memoryLimitInMi }}
             memory: {{ .Values.memoryLimitInMi }}Mi
-            {{- else if ne .Values.memoryRequestInMi "nil" }}
+            {{- else if not .Values.memoryRequestInMi }}
             memory: {{ mul .Values.memoryRequestInMi 1.1 }}Mi
             {{- else }}
             {{- end }}

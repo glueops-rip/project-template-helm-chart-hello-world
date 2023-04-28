@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-cpu-exceeds-requested
+spec:
+  groups:
+  - name: {{ .Release.Name }}-cpu-exceeds-requested
+    rules:
+    - alert: {{ .Release.Name }}-cpu-exceeds-requested
+      expr: |
+        sum(
+          rate(container_cpu_usage_seconds_total{container!="", container!="POD", namespace="{{ .Release.Namespace }}", container=~"{{ .Values.containerName }}"}[5m])
+        ) by (pod, namespace, container)
+        / on (pod, namespace, container) group_left
+        sum(kube_pod_container_resource_requests{resource="cpu", namespace="{{ .Release.Namespace }}", container=~"{{ .Values.containerName }}"}) by (pod, namespace, container) > 1
+      for: 1m
+      annotations:
+        description: {{ .Release.Name }} has exceeded requested CPU.
+      labels:
+        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "team")) "nil" }}
+        team: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "team" | nindent 8 }}
+        {{- end }}
+        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component")) "nil" }}
+        component: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component" | nindent 8 }}
+        {{- end }}
+        alertname: {{ .Release.Name }}
+        namespace: {{ .Release.Namespace }}
+
+

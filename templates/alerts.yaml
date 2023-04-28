@@ -17,11 +17,11 @@ spec:
       annotations:
         description: {{ .Release.Name }} has exceeded requested CPU.
       labels:
-        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "team")) "nil" }}
-        team: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "team" | nindent 8 }}
+        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig" "labels" "team")) "nil" }}
+        team: {{ index .Values "prometheus-alertmanagerconfig" "labels" "team" | nindent 8 }}
         {{- end }}
-        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component")) "nil" }}
-        component: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component" | nindent 8 }}
+        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig" "labels" "component")) "nil" }}
+        component: {{ index .Values "prometheus-alertmanagerconfig" "labels" "component" | nindent 8 }}
         {{- end }}
         alertname: {{ .Release.Name }}-cpu-exceeds-requested
         namespace: {{ .Release.Namespace }}
@@ -43,11 +43,11 @@ spec:
       annotations:
         description: {{ .Release.Name }} has exceeded requested memory.
       labels:
-        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "team")) "nil" }}
-        team: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "team" | nindent 8 }}
+        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig" "labels" "team")) "nil" }}
+        team: {{ index .Values "prometheus-alertmanagerconfig" "labels" "team" | nindent 8 }}
         {{- end }}
-        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component")) "nil" }}
-        component: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component" | nindent 8 }}
+        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig" "labels" "component")) "nil" }}
+        component: {{ index .Values "prometheus-alertmanagerconfig" "labels" "component" | nindent 8 }}
         {{- end }}
         alertname: {{ .Release.Name }}-memory-exceeds-requested
         namespace: {{ .Release.Namespace }}

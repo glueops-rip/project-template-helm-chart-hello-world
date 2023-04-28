@@ -7,10 +7,10 @@ image:
   name: glueops/tacos_app_react_js
   tag: v0.2.2
 containerPort: 3000
-cpuLimit: nil
-cpuRequest: nil
-memoryLimit: nil
-memoryRequest: nil
+cpuLimitInM: nil
+cpuRequestInM: nil
+memoryLimitInMi: nil
+memoryRequestInMi: nil
 #<name>.apps.<cluster-environment-name>.<companykey>.glueopshosted.rocks
 captain_domain: <cluster-environment-name>.<companykey>.glueopshosted.com
 domain: nil

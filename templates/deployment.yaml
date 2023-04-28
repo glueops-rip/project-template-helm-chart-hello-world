@@ -35,23 +35,23 @@ spec:
         {{- end }}
         resources:
           requests:
-            {{- if ne .Values.cpuRequest "nil" }}
-            cpu: {{ .Values.cpuRequest }}m
+            {{- if ne .Values.cpuRequestInM "nil" }}
+            cpu: {{ .Values.cpuRequestInM }}m
             {{- end }}
-            {{- if ne .Values.memoryRequest "nil" }}
-            memory: {{ .Values.memoryRequest }}Mi
+            {{- if ne .Values.memoryRequestInMi "nil" }}
+            memory: {{ .Values.memoryRequestInMi }}Mi
             {{- end }}
           limits:
-            {{- if ne .Values.cpuLimit "nil" }}
-            cpu: {{ .Values.cpuLimit }}m
-            {{- else if ne .Values.cpuRequest "nil" }}
-            cpu: {{ mul .Values.cpuRequest 1.1 }}m
+            {{- if ne .Values.cpuLimitInM "nil" }}
+            cpu: {{ .Values.cpuLimitInM }}m
+            {{- else if ne .Values.cpuRequestInM "nil" }}
+            cpu: {{ mul .Values.cpuRequestInM 1.1 }}m
             {{- else }}
             {{- end }}
-            {{- if ne .Values.memoryLimit "nil" }}
-            memory: {{ .Values.memoryLimit }}Mi
-            {{- else if ne .Values.memoryRequest "nil" }}
-            memory: {{ mul .Values.memoryRequest 1.1 }}Mi
+            {{- if ne .Values.memoryLimitInMi "nil" }}
+            memory: {{ .Values.memoryLimitInMi }}Mi
+            {{- else if ne .Values.memoryRequestInMi "nil" }}
+            memory: {{ mul .Values.memoryRequestInMi 1.1 }}Mi
             {{- else }}
             {{- end }}
       {{- if ne .Values.vault_path_registry_credentials "nil" }}

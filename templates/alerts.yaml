@@ -23,7 +23,7 @@ spec:
         {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component")) "nil" }}
         component: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component" | nindent 8 }}
         {{- end }}
-        alertname: {{ .Release.Name }}
+        alertname: {{ .Release.Name }}-cpu-exceeds-requested
         namespace: {{ .Release.Namespace }}
 
 

@@ -33,7 +33,6 @@ spec:
             optional: true
         {{- end }}
         {{- end }}
-# new
         resources:
           requests:
             {{- if ne .Values.cpuRequest "nil" }}
@@ -47,13 +46,13 @@ spec:
             cpu: {{ .Values.cpuLimit }}
             {{- else if ne .Values.cpuRequest "nil" }}
             cpu: {{ mul .Values.cpuRequest 1.1 }}
-            {{- end }}
+            {{- else }}
             {{- end }}
             {{- if ne .Values.memoryLimit "nil" }}
             memory: {{ .Values.memoryLimit }}
             {{- else if ne .Values.memoryRequest "nil" }}
             memory: {{ mul .Values.memoryRequest 1.1 }}
-            {{- end }}
+            {{- else }}
             {{- end }}
       {{- if ne .Values.vault_path_registry_credentials "nil" }}
       imagePullSecrets:

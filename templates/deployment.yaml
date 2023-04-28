@@ -45,13 +45,13 @@ spec:
             {{- if .Values.cpuLimitInM }}
             cpu: {{ .Values.cpuLimitInM }}m
             {{- else if .Values.cpuRequestInM }}
-            cpu: {{ mul .Values.cpuRequestInM 1.5 }}m
+            cpu: {{ mul .Values.cpuRequestInM 1.2 }}m
             {{- else }}
             {{- end }}
             {{- if .Values.memoryLimitInMi }}
             memory: {{ .Values.memoryLimitInMi }}Mi
             {{- else if .Values.memoryRequestInMi }}
-            memory: {{ mul .Values.memoryRequestInMi 1.5 }}Mi
+            memory: {{ mul .Values.memoryRequestInMi 1.2 }}Mi
             {{- else }}
             {{- end }}
       {{- if ne .Values.vault_path_registry_credentials "nil" }}

@@ -25,5 +25,30 @@ spec:
         {{- end }}
         alertname: {{ .Release.Name }}-cpu-exceeds-requested
         namespace: {{ .Release.Namespace }}
-
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-memory-exceeds-requested
+spec:
+  groups:
+  - name: {{ .Release.Name }}-memory-exceeds-requested
+    rules:
+    - alert: {{ .Release.Name }}-memory-exceeds-requested
+      expr: |
+        sum(container_memory_working_set_bytes{namespace="{{ .Release.Namespace }}", container!="", container!="POD"}) by (pod, namespace, container)
+        / on (pod, namespace, container) group_left
+        sum(kube_pod_container_resource_requests{resource="memory", namespace="{{ .Release.Namespace }}"}) by (pod, namespace, container) > 1
+      for: 1m
+      annotations:
+        description: {{ .Release.Name }} has exceeded requested memory.
+      labels:
+        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "team")) "nil" }}
+        team: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "team" | nindent 8 }}
+        {{- end }}
+        {{- if ne (toString (index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component")) "nil" }}
+        component: {{ index .Values "prometheus-alertmanagerconfig-opsgenie" "labels" "component" | nindent 8 }}
+        {{- end }}
+        alertname: {{ .Release.Name }}-memory-exceeds-requested
+        namespace: {{ .Release.Namespace }}
 

@@ -9,10 +9,10 @@ spec:
     - alert: {{ .Release.Name }}-cpu-exceeds-requested
       expr: |
         sum(
-          rate(container_cpu_usage_seconds_total{container!="", container!="POD", namespace="{{ .Release.Namespace }}", container=~"{{ .Values.containerName }}"}[5m])
+          rate(container_cpu_usage_seconds_total{container!="", container!="POD", namespace="{{ .Release.Namespace }}", container=~"{{ .Release.Name }}"}[5m])
         ) by (pod, namespace, container)
         / on (pod, namespace, container) group_left
-        sum(kube_pod_container_resource_requests{resource="cpu", namespace="{{ .Release.Namespace }}", container=~"{{ .Values.containerName }}"}) by (pod, namespace, container) > 1
+        sum(kube_pod_container_resource_requests{resource="cpu", namespace="{{ .Release.Namespace }}", container=~"{{ .Release.Name }}"}) by (pod, namespace, container) > 1
       for: 1m
       annotations:
         description: {{ .Release.Name }} has exceeded requested CPU.

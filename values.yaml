@@ -7,7 +7,6 @@ image:
   name: glueops/tacos_app_react_js
   tag: v0.2.2
 containerPort: 3000
-containerName: app
 cpuLimit: null # In milicores, defaults to 110% of cpuRequest
 cpuRequest: 300 # In milicores
 memoryLimit: null # In mebibytes, defaults to 110% of memoryRequest

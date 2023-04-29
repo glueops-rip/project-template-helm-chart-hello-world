@@ -35,23 +35,23 @@ spec:
         {{- end }}
         resources:
           requests:
-            {{- if .Values.cpuRequestInM }}
-            cpu: {{ .Values.cpuRequestInM }}m
+            {{- if .Values.cpuRequest }}
+            cpu: {{ .Values.cpuRequest }}m
             {{- end }}
-            {{- if .Values.memoryRequestInMi }}
-            memory: {{ .Values.memoryRequestInMi }}Mi
+            {{- if .Values.memoryRequest }}
+            memory: {{ .Values.memoryRequest }}Mi
             {{- end }}
           limits:
-            {{- if .Values.cpuLimitInM }}
-            cpu: {{ .Values.cpuLimitInM }}m
-            {{- else if .Values.cpuRequestInM }}
-            cpu: {{ mulf .Values.cpuRequestInM 1.1 }}m
+            {{- if .Values.cpuLimit }}
+            cpu: {{ .Values.cpuLimit }}m
+            {{- else if .Values.cpuRequest }}
+            cpu: {{ mulf .Values.cpuRequest 1.1 }}m
             {{- else }}
             {{- end }}
-            {{- if .Values.memoryLimitInMi }}
-            memory: {{ .Values.memoryLimitInMi }}Mi
-            {{- else if .Values.memoryRequestInMi }}
-            memory: {{ mulf .Values.memoryRequestInMi 1.1 }}Mi
+            {{- if .Values.memoryLimit }}
+            memory: {{ .Values.memoryLimit }}Mi
+            {{- else if .Values.memoryRequest }}
+            memory: {{ mulf .Values.memoryRequest 1.1 }}Mi
             {{- else }}
             {{- end }}
       {{- if ne .Values.vault_path_registry_credentials "nil" }}

@@ -15,7 +15,7 @@ spec:
         app: {{ .Release.Name }}
     spec:
       containers:
-      - name: app
+      - name: {{ .Release.Name }}
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
         imagePullPolicy: Always
         ports:
@@ -33,10 +33,28 @@ spec:
             optional: true
         {{- end }}
         {{- end }}
+        resources:
+          requests:
+            {{- if .Values.cpuRequest }}
+            cpu: {{ .Values.cpuRequest }}m
+            {{- end }}
+            {{- if .Values.memoryRequest }}
+            memory: {{ .Values.memoryRequest }}Mi
+            {{- end }}
+          limits:
+            {{- if .Values.cpuLimit }}
+            cpu: {{ .Values.cpuLimit }}m
+            {{- else if .Values.cpuRequest }}
+            cpu: {{ mulf .Values.cpuRequest 1.1 }}m
+            {{- else }}
+            {{- end }}
+            {{- if .Values.memoryLimit }}
+            memory: {{ .Values.memoryLimit }}Mi
+            {{- else if .Values.memoryRequest }}
+            memory: {{ mulf .Values.memoryRequest 1.1 }}Mi
+            {{- else }}
+            {{- end }}
       {{- if ne .Values.vault_path_registry_credentials "nil" }}
       imagePullSecrets:
         - name: {{ .Release.Name }}-reg-cred
       {{- end }}
-
-
-          

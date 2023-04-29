@@ -7,6 +7,10 @@ image:
   name: glueops/tacos_app_react_js
   tag: v0.2.2
 containerPort: 3000
+cpuLimit: null # In milicores, defaults to 110% of cpuRequest
+cpuRequest: 300 # In milicores
+memoryLimit: null # In mebibytes, defaults to 110% of memoryRequest
+memoryRequest: 32 # In mebibytes
 #<name>.apps.<cluster-environment-name>.<companykey>.glueopshosted.rocks
 captain_domain: <cluster-environment-name>.<companykey>.glueopshosted.com
 domain: nil
@@ -14,4 +18,10 @@ vault_path: nil
 vault_path_overrides: nil
 vault_path_registry_credentials: nil
 
+alerts:
+  # -- These labels are additional filters you can use to keep these notifications for one particular team, component, or alert. Note: you must set the same filters (with the exception of alertname) on the alert definition itself. The alert definition is also refered to as the prometheusrule.
+  labels:
+    team: nil
+    component: nil
+    alertname: nil
 

@@ -26,7 +26,3 @@ alerts:
     component: nil
     alertname: nil
 
-  # -- Amount of time to fire an alert again after the first one is sent.
-  route:
-    repeatInterval: "5m"
-    groupInterval: "5m"

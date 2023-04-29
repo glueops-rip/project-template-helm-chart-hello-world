@@ -11,7 +11,7 @@ containerName: app
 cpuLimit: null # In milicores, defaults to 110% of cpuRequest
 cpuRequest: 300 # In milicores
 memoryLimit: null # In mebibytes, defaults to 110% of memoryRequest
-memoryRequestInMi: 32 # In mebibytes
+memoryRequest: 32 # In mebibytes
 #<name>.apps.<cluster-environment-name>.<companykey>.glueopshosted.rocks
 captain_domain: <cluster-environment-name>.<companykey>.glueopshosted.com
 domain: nil

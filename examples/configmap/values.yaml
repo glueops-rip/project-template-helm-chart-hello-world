@@ -1,0 +1,23 @@
+configMap:
+  enabled: true
+  labels: 
+    key: value
+  annotations: 
+    key: value
+  configs:
+    # nameSuffix of configMap
+    configmap1:
+      data: |-
+        API_PORT: "8080"
+        LOG_LEVEL: info
+        .env: |
+          FOO=BAR
+          APP=test
+        example.json: |
+          {
+            "test": "123"
+          }
+    configmap2:
+      data: |-
+        example.yaml: |
+          "test": "123"

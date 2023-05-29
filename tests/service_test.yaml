@@ -1,0 +1,63 @@
+suite: service
+templates:
+  - templates/service.yaml
+tests:
+  - it: default value should pass
+    release:
+      name: my-release
+    set:
+      appName: myapp
+      service:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 8080
+            targetPort: 8080
+            protocol: TCP
+            name: http
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: myapp
+      
+  - it: service port should be able to override
+    set:
+      service:
+        enabled: true
+        port: 9999
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 9999
+            targetPort: 8080
+            protocol: TCP
+            name: http
+
+  - it: extra service port should be able to add
+    set:
+      service:
+        enabled: true
+        ports:
+        - name: cool-service
+          port: 1234
+          targetPort: 5678
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 1234
+            targetPort: 5678
+            protocol: TCP
+            name: cool-service
+      - contains:
+          path: spec.ports
+          content:
+            port: 8080
+            targetPort: 8080
+            protocol: TCP
+            name: http

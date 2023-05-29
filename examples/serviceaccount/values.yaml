@@ -1,0 +1,7 @@
+serviceAccount:
+  create: true
+  name: new-service-account
+  labels:
+    key: value
+  annotations:
+    serviceaccount.annotations.example.com/foo: bar

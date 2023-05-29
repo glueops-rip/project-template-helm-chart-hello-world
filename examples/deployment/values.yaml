@@ -1,0 +1,204 @@
+serviceAccount:
+  create: true
+
+podDisruptionBudget:
+  enabled: true
+
+deployment:
+  enabled: true
+
+  replicas: 3
+
+  serviceAccount:
+    enabled: true
+
+  tolerations:
+  - key: "node-role.kubernetes.io/on-demand"
+    operator: "Equal"
+    value: "true"
+    effect: "PreferNoSchedule"
+
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: k8s-node-role/services-worker
+            operator: In
+            values:
+            - "true"
+          - key: dedicated
+            operator: In
+            values:
+            - "general-purpose"
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - preference:
+          matchExpressions:
+          - key: k8s-node-role/spot-worker
+            operator: In
+            values:
+            - "true"
+        weight: 100
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - "example"
+          topologyKey: topology.kubernetes.io/zone
+
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchExpressions:
+        - key: disktype
+          operator: In
+          values:
+          - ssd
+
+  securityContext:
+    fsGroup: 2000
+
+  dnsPolicy: ClusterFirstWithHostNet
+
+  dnsConfig:
+    options:
+    - name: single-request-reopen
+
+  initContainers:
+  - name: init-mydb
+    image: alpine:1.28
+    command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+    resources:
+      requests:
+        cpu: 50m
+        memory: 100Mi
+      limits:
+        cpu: 100m
+        memory: 200Mi
+
+  sidecar:
+  - name: sidecar-contaner
+    image: busybox:v1.0.0
+    imagePullPolicy: IfNotPresent
+    command: ['/bin/sh']
+    env:
+      - name: FOO
+        value: BAR
+      - name: FIZZ
+        value: BUZZ
+    resources:
+      requests:
+        cpu: 50m
+        memory: 100m
+      limits:
+        cpu: 100m
+        memory: 200m
+    livenessProbe:
+      httpGet:
+        path: /healthz-no-downstream
+        port: http
+    readinessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
+
+  livenessProbe:
+    httpGet:
+      path: /health-no-downstream
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 5
+    successThreshold: 1
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 3
+    successThreshold: 1
+
+  startupProbe: {}
+
+  containerPorts:
+  - name: metrics
+    port: 9000
+  - name: grpc
+    port: 5000
+
+
+  # list of environment variables
+  envVariables:
+  - name: FOO
+    value: "bar"
+  - name: BUZZ
+    value: "fizz"
+
+  # list of secret environment variables
+  # variable   - name of env variable inside container
+  # secretName - name of kubernetes secret object
+  # secretKey  - name of the key in secret object which holds the value
+  envSecrets:
+  - variable: MYSQL_PASSWORD
+    secretName: databases-secrets
+    secretKey: mysql-password
+  - variable: JWT
+    secretName: web-tokens
+    secretKey: jwt
+
+  envConfigMaps:
+  - variable: MYSQL_HOST
+    configMapName: mysql-config
+    configMapKey: host
+
+  ## envMap
+  envMap: 
+    envMapKey:
+      value: envMapValue
+    foo:
+      value: bar
+    foo1:
+      valueFrom:
+        configMapKeyRef:
+          name: configmap-name
+          key: configMapKey
+    foo2:
+      valueFrom:
+        secretKeyRef:
+          name: secret-name
+          key: secretKey
+
+  lifecycle:
+    preStop:
+      exec:
+        command: ["/bin/sh", "-c", "sleep 5; nginx -c /etc/nginx/nginx.conf -s quit; while pgrep -x nginx; do sleep 1; done"]
+
+  volumeMounts:
+  - name: foo
+    mountPath: "/etc/foo"
+    readOnly: true
+
+  volumes:
+  - name: foo
+    configMap:
+      name: '{{ template "app.name" . }}-configmap-nameSuffix'

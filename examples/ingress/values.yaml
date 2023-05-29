@@ -1,0 +1,30 @@
+podDisruptionBudget:
+  enabled: true
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx-ingress
+    ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/force-ssl-redirect: "true"
+  entries:
+    - name: external
+      labels:
+      annotations:
+      # ingressClassName: nginx
+      hosts:
+        - hostname: service1.example.com
+          paths:
+            - path: /*
+              serviceName: ssl-redirect
+              servicePortName: use-annotation
+            - path: /metrics
+              # pathType:
+              # serviceName:
+              # servicePortNumber:
+      # TLS details for this Ingress
+      tls:
+        - hosts:
+            - chart-example.local
+            - '{{ .Chart.Name }}.example.com'
+          # Secrets must be created in the same namespace
+          secretName: chart-example-tls

@@ -1,0 +1,46 @@
+{{- if and .Values.keda.enabled .Values.keda.scaledObject.enabled }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ template "app.name" $ }}
+  namespace: {{ include "app.namespace" $ }}
+  labels:
+    {{- include "chart.commonLabels" $ | indent 4 }}
+    {{- if .Values.keda.scaledObject.labels }}
+    {{- range $key, $value := .Values.keda.scaledObject.labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+  annotations:
+    {{- include "chart.commonAnnotations" $ | indent 4 }}
+    {{- if .Values.keda.scaledObject.annotations }}
+    {{- range $key, $value := .Values.keda.scaledObject.annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+spec:
+  {{- range $specKey, $specValue := .Values.keda.scaledObject.spec }}
+  {{- if not (or (eq $specKey "triggers") (eq $specKey "triggersMap")) }}
+  {{ $specKey }}: {{ $specValue }}
+  {{- end }}
+  {{- end }}
+
+  {{- if not (hasKey .Values.keda.scaledObject.spec "scaleTargetRef") }}
+  scaleTargetRef:
+    name: {{ template "app.name" $ }}
+  {{- end }}
+  triggers:
+  {{- if .Values.keda.scaledObject.spec.triggers }}
+  {{- toYaml .Values.keda.scaledObject.spec.triggers | nindent 4 }}
+  {{- else }}
+  {{- $list := list -}}
+  {{- range $triggerMapKey, $triggerMapValue := .Values.keda.scaledObject.spec.triggersMap }}
+  {{- if $triggerMapValue }}
+  {{- $list = append $list $triggerMapValue -}}
+  {{- end }}
+  {{- end }}
+  {{- toYaml $list | nindent 4 }}
+  {{- end }}
+
+{{- end }}

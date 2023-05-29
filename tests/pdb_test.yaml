@@ -1,0 +1,72 @@
+suite: PodDisruptionBudget
+
+templates:
+  - templates/pdb.yaml
+
+tests:
+  - it: does not yield PDB if disabled
+    set:
+      podDisruptionBudget.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: does not yield PDB if minAvailable and maxUnavailable are inexistent
+    set:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: null
+        maxUnavailable: null
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: yields PDB if enabled and minAvailable is set
+    set:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+        maxUnavailable: null
+    asserts:
+      - isKind:
+          of: PodDisruptionBudget
+      - hasDocuments:
+          count: 1
+
+  - it: yields PDB if enabled and maxUnavailable is set
+    set:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: null
+        maxUnavailable: 1
+    asserts:
+      - isKind:
+          of: PodDisruptionBudget
+      - hasDocuments:
+          count: 1
+
+  - it: uses minAvailable when both minAvailable and maxUnavailable are set
+    set:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+        maxUnavailable: 1
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: 1
+      - isNull:
+          path: spec.maxUnavailable
+
+  - it: uses maxUnavailable when it is set and minAvailable is not
+    set:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: null
+        maxUnavailable: 1
+    asserts:
+      - equal:
+          path: spec.maxUnavailable
+          value: 1
+      - isNull:
+          path: spec.minAvailable

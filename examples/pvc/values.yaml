@@ -1,0 +1,53 @@
+podDisruptionBudget:
+  enabled: true
+
+deployment:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
+
+  livenessProbe:
+    httpGet:
+      path: /health-no-downstream
+      port: 8080
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+
+  volumeMounts:
+  - name: bar
+    mountPath: "/etc/foo"
+    readOnly: true
+
+  volumes:
+  - name: foo
+    configMap:
+      name: '{{ template "app.name" . }}-configmap-nameSuffix'
+  - name: foo2
+    secret:
+      secretName: mysecret
+  - name: bar
+    emptyDir: {}
+
+PersistentVolumeClaim:
+  enabled: true
+  labels:
+    key: "value"
+  annotations:
+    "helm.sh/resource-policy": keep
+  mountPVC: true
+  mountPath: "/mnt/test"
+  name: "example-pvc"
+  accessMode: ReadWriteOnce
+  storageClass: ""
+  storageSize: 8Gi
+  volumeMode: ""
+  volumeName: ""

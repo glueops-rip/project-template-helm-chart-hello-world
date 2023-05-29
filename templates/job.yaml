@@ -1,0 +1,43 @@
+{{ if .Values.job.enabled }}
+{{- range $name, $job := .Values.job.jobs }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  {{- $nowSuffix := (now | date "200601021504") }}
+  name: {{ template "app.name" $ }}-{{$name}}-{{$nowSuffix}}
+  namespace: {{ template "app.namespace" $ }}
+  labels:
+    {{- include "chart.commonLabels" (merge $ (dict  "suffixName" (printf "%s-%s" $name $nowSuffix))) | indent 4 }}
+    {{- if $.Values.job.labels }}
+    {{- range $key, $value := $.Values.job.labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- range $job.labels }}
+    {{ .key }}: {{ .value | quote }}
+    {{- end }}
+  annotations:
+    {{- include "chart.commonAnnotations" $ | indent 4 }}
+    {{- if $.Values.cronJob.annotations }}
+    {{- range $key, $value := $.Values.cronJob.annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- range $job.annotations }}
+    {{.key}}: {{.value | quote}}
+    {{- end }}
+spec:
+  suspend: {{ $job.suspend | default false }}
+  {{- if $.Values.job.backoffLimit }}
+  backoffLimit: {{ $.Values.job.backoffLimit }}
+  {{- end }}
+  {{- if $.Values.job.ttlSecondsAfterFinished }}
+  ttlSecondsAfterFinished: {{ $.Values.job.ttlSecondsAfterFinished }}
+  {{- end }}
+  {{- $context := set (set (merge $job (dict "resourceType" "job" "name" $name)) "Chart" $.Chart) "Root" $ }}
+  template: 
+  {{- include "chart.podTemplate" $context | nindent 4 }}
+
+{{- end }}
+{{- end }}

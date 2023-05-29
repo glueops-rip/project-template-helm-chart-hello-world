@@ -1,0 +1,62 @@
+serviceAccount:
+  create: true
+
+cronJob:
+  enabled: true
+  jobs:
+    cronjob:
+      labels: {}
+      annotations: {}
+      serviceAccount:
+        enabled: true
+      schedule: "* * * 8 *"
+      envMap:
+        foo:
+          value: bar
+        foo1:
+          valueFrom:
+            configMapKeyRef:
+              name: configmap-name
+              key: configMapKey
+        foo2:
+          valueFrom:
+            secretKeyRef:
+              name: secret-name
+              key: secretKey
+      image: docker.io/nginx:v1.2.3
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash"]
+      args: ["-c","sleep 5000"]
+      resources:
+        requests:
+          cpu: 50m
+          memory: 100Mi
+        limits:
+          cpu: 100m
+          memory: 200Mi
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions: 
+              - key: k8s-node-role/job-worker
+                operator: In
+                values:
+                - "true"
+              - key: dedicated
+                operator: In
+                values:
+                - "general-purpose"
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: k8s-node-role/spot-worker
+                operator: In
+                values:
+                - "true"
+            weight: 100
+      tolerations:
+      - effect: NoSchedule
+        key: k8s-node-role/job-worker
+        operator: Equal
+        value: "true"

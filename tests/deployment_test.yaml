@@ -1,0 +1,77 @@
+suite: Deployment
+
+templates:
+  - templates/deployment.yaml
+
+tests:
+  - it: does not fail to render when image tag not given
+    set:
+      deployment:
+        enabled: true
+        image: example-image:v1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: example-image:v1
+
+  - it: uses image tag when given
+    set:
+      appVersion: 1.2.3
+      image:
+        repository: example-image
+        tag: example-tag
+      deployment:
+        enabled: true
+    asserts:
+      - exists:
+          path: spec.template.spec.containers[0].image
+          value: example-image:example-tag
+      - equal:
+          path: metadata.labels["app.kubernetes.io/version"]
+          value: 1.2.3
+
+  - it: should pass all kinds of assertion
+    set:
+      appName: unittest
+      image:
+        repository: nginx
+        tag: v1.1.2
+        port: 9999
+      deployment:
+        enabled: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits:
+            cpu: 100m
+            memory: 200Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "unittest")].image
+          value: docker.io/nginx:v1.1.2
+      - notEqual:
+          path: spec.template.spec.containers[?(@.name == "unittest")].image
+          value: nginx:latest
+      - exists:
+          path: spec.template.spec.containers[?(@.name == "unittest")].ports
+          content:
+            containerPort: 9999
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "unittest")].ports
+          content:
+            containerPort: 8080
+      - notExists:
+          path: spec.template.nodeSelector
+      - notExists:
+          path: spec.template.spec.containers[1]
+      - exists:
+          path: spec.template
+      - isNotNullOrEmpty:
+          path: spec.template.spec.containers[?(@.name == "unittest")]
+      - isNotNullOrEmpty:
+          path: spec.template.spec.containers[?(@.name == "unittest")].resources.limits
+      - isNotNullOrEmpty:
+          path: spec.template.spec.containers[?(@.name == "unittest")].resources.requests
+      - isKind:
+          of: Deployment

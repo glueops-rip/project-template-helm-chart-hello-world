@@ -1,13 +1,44 @@
+{{- if .Values.service.enabled -}}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ template "app.name" . }}
+  namespace: {{ template "app.namespace" . }}
+  labels:
+    {{- include "chart.commonLabels" . | indent 4 }}
+    {{- if .Values.service.labels }}
+    {{- range $key, $value := .Values.service.labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+  annotations:
+    {{- include "chart.commonAnnotations" . | indent 4 }}
+    {{- if .Values.service.annotations }}
+    {{- range $key, $value := .Values.service.annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
 spec:
-  type: ClusterIP
-  selector:
-    app: {{ .Release.Name }}
+  type: {{.Values.service.type | default "ClusterIP" }}
+  {{- if .Values.service.headlessService }}
+  clusterIP: None
+  {{- end }}
   ports:
-  - port: {{ .Values.containerPort }}
-    targetPort: {{ .Values.containerPort }}
-    protocol: TCP
-    name: https
+  - name: {{.Values.service.portName | default "http" }}
+    protocol: {{.Values.service.protocol | default "TCP" }}
+    port: {{.Values.service.port | default (include "app.port" .) }}
+    targetPort: {{ template "app.port" . }}
+  {{- range .Values.service.ports }}
+  - name: {{ .name | default "http" }}
+    protocol: {{ .protocol | default "TCP" }}
+    port: {{ .port }}
+    targetPort: {{ .targetPort | default (include "app.port" $) }}
+  {{- end }}
+  selector:
+    {{- include "chart.appLabels" . | indent 4 }}
+    {{- if .Values.deployment.matchLabels }}
+    {{- toYaml .Values.deployment.matchLabels | nindent 4 }}
+    {{- end }}
+
+{{- end -}}

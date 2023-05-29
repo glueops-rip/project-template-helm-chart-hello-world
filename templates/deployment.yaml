@@ -1,60 +1,51 @@
+{{- if .Values.deployment.enabled }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ template "app.name" . }}
+  namespace: {{ template "app.namespace" . }}
   labels:
-    app: {{ .Release.Name }}
+    {{- include "chart.commonLabels" . | indent 4 }}
+    {{- include "chart.deploymentLabels" . | indent 4 }}
+  annotations:
+    {{- include "chart.commonAnnotations" . | indent 4 }}
+    {{- include "chart.deploymentAnnotations" . | indent 4 }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
-  replicas: {{ .Values.replicaCount }}
-  template:
-    metadata:
-      labels:
-        app: {{ .Release.Name }}
-    spec:
-      containers:
-      - name: {{ .Release.Name }}
-        image: {{ .Values.image.name }}:{{ .Values.image.tag }}
-        imagePullPolicy: Always
-        ports:
-        - containerPort: {{ .Values.containerPort }}
-        env: 
-        - name: GLUEOPS_PREVIEW_DOMAIN
-          value: {{ .Release.Name }}.apps.{{ .Values.captain_domain }}
-        {{- if ne .Values.vault_path "nil" }}
-        envFrom:
-        - secretRef:
-            name: {{ .Release.Name }}
-        {{- if ne .Values.vault_path_overrides "nil" }}
-        - secretRef:
-            name: {{ .Release.Name }}-overrides
-            optional: true
-        {{- end }}
-        {{- end }}
-        resources:
-          requests:
-            {{- if .Values.cpuRequest }}
-            cpu: {{ .Values.cpuRequest }}m
-            {{- end }}
-            {{- if .Values.memoryRequest }}
-            memory: {{ .Values.memoryRequest }}Mi
-            {{- end }}
-          limits:
-            {{- if .Values.cpuLimit }}
-            cpu: {{ .Values.cpuLimit }}m
-            {{- else if .Values.cpuRequest }}
-            cpu: {{ mulf .Values.cpuRequest 1.1 }}m
-            {{- else }}
-            {{- end }}
-            {{- if .Values.memoryLimit }}
-            memory: {{ .Values.memoryLimit }}Mi
-            {{- else if .Values.memoryRequest }}
-            memory: {{ mulf .Values.memoryRequest 1.1 }}Mi
-            {{- else }}
-            {{- end }}
-      {{- if ne .Values.vault_path_registry_credentials "nil" }}
-      imagePullSecrets:
-        - name: {{ .Release.Name }}-reg-cred
+      {{- include "chart.appLabels" . | indent 6 }}
+      {{- if .Values.deployment.matchLabels }}
+      {{- toYaml .Values.deployment.matchLabels | nindent 6 }}
       {{- end }}
+  {{- if .Values.deployment.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  {{- end }}
+  {{- if and .Values.deployment.replicas (not .Values.keda.enabled) }}
+  replicas: {{ .Values.deployment.replicas }}
+  {{- end }}
+  strategy:
+    {{- $strategy := .Values.deployment.strategy |  default "RollingUpdate" }}
+    type: {{ $strategy }}
+    {{- if eq $strategy "RollingUpdate" }}
+    rollingUpdate:
+      {{- $replicas := (int .Values.deployment.replicas) | default 1 }}
+      {{- if .Values.deployment.maxSurge }}
+      maxSurge: {{ .Values.deployment.maxSurge }}
+      {{- else }}
+      {{- $maxSurge := ternary "50%" "100%" (gt $replicas 1) }}
+      maxSurge: {{ $maxSurge }}
+      {{- end }}
+      {{- if .Values.deployment.maxUnavailable }}
+      maxUnavailable: {{ .Values.deployment.maxUnavailable }}
+      {{- else }}
+      {{- $maxUnavailable := ternary (div $replicas 2 | int) 0 (gt $replicas 1) }}
+      maxUnavailable: {{ $maxUnavailable }}
+      {{- end }}
+    {{- end }}
+
+  {{- $context := set (set (merge .Values.deployment (dict "resourceType" "deployment")) "Chart" $.Chart) "Root" $ }}
+  template: 
+  {{- include "chart.podTemplate" $context | nindent 4 }}
+
+{{- end }}

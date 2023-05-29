@@ -1,0 +1,35 @@
+{{- if .Values.keda.enabled }}
+{{- range $triggerAuthName, $triggerAuthCfg := .Values.keda.triggerAuthentication }}
+{{- if $triggerAuthCfg.enabled }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ template "app.name" $ }}-{{ $triggerAuthName }}
+  namespace: {{ include "app.namespace" $ }}
+  labels:
+    {{- include "chart.commonLabels" $ | indent 4 }}
+    {{- if $.Values.keda.triggerAuthentication.labels }}
+    {{- range $key, $value := $.Values.keda.triggerAuthentication.labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- if $triggerAuthCfg.labels }}
+    {{ toYaml $triggerAuthCfg.labels | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- include "chart.commonAnnotations" $ | indent 4 }}
+    {{- if $.Values.keda.triggerAuthentication.annotations }}
+    {{- range $key, $value := $.Values.keda.triggerAuthentication.annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- if $triggerAuthCfg.annotations }}
+    {{ toYaml $triggerAuthCfg.annotations | nindent 4 }}
+    {{- end }}
+spec:
+  {{- toYaml $triggerAuthCfg.spec | nindent 2 }}
+
+{{- end }}
+{{- end }}
+{{- end }}

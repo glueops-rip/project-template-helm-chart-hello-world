@@ -1,0 +1,79 @@
+checks:
+  cpuRequestsMissing: warning
+  cpuLimitsMissing: danger
+  memoryRequestsMissing: danger
+  memoryLimitsMissing: danger
+  readinessProbeMissing: danger
+  livenessProbeMissing: danger
+  tagNotSpecified: danger
+  pullPolicyNotAlways: ignore
+  priorityClassNotSet: ignore
+  deploymentMissingReplicas: warning
+  missingPodDisruptionBudget: danger
+  metadataAndNameMismatched: danger
+  topologySpreadConstraint: warning
+  automountServiceAccountToken: warning
+  hostIPCSet:
+  hostPIDSet:
+  linuxHardening: warning
+  notReadOnlyRootFilesystem: warning
+  runAsRootAllowed: warning
+  runAsPrivileged: warning
+  insecureCapabilities: warning
+  privilegeEscalationAllowed: warning
+  dangerousCapabilities: warning
+  sensitiveContainerEnvVar: danger
+  sensitiveConfigmapContent: danger
+  missingNetworkPolicy:	ignore	
+  tlsSettingsMissing: ignore
+  hostNetworkSet: warning
+  hostPortSet: warning
+  clusterrolePodExecAttach: warning
+  rolePodExecAttach: 
+
+
+checks:
+  # reliability
+  deploymentMissingReplicas: ignore
+  priorityClassNotSet: ignore
+  tagNotSpecified: danger
+  pullPolicyNotAlways: ignore
+  readinessProbeMissing: danger
+  livenessProbeMissing: danger
+  metadataAndNameMismatched: danger
+  pdbDisruptionsIsZero: danger
+  missingPodDisruptionBudget: danger
+  topologySpreadConstraint: warning
+
+  # efficiency
+  cpuRequestsMissing: danger
+  cpuLimitsMissing: danger
+  memoryRequestsMissing: danger
+  memoryLimitsMissing: danger
+  
+  # security
+  automountServiceAccountToken: ignore
+  hostIPCSet: warning
+  hostPIDSet: warning
+  linuxHardening: warning
+  missingNetworkPolicy: ignore
+  notReadOnlyRootFilesystem: warning
+  privilegeEscalationAllowed: warning
+  runAsRootAllowed: warning
+  runAsPrivileged: warning
+  dangerousCapabilities: warning
+  insecureCapabilities: warning
+  hostNetworkSet: warning
+  hostPortSet: warning
+  tlsSettingsMissing: ignore
+  # These are initially warning and will later be promoted to danger.
+  sensitiveContainerEnvVar: warning
+  sensitiveConfigmapContent: warning
+  clusterrolePodExecAttach: warning
+  rolePodExecAttach: ignore
+  clusterrolebindingPodExecAttach: warning
+  rolebindingClusterRolePodExecAttach: warning
+  rolebindingRolePodExecAttach: warning
+  clusterrolebindingClusterAdmin: warning
+  rolebindingClusterAdminClusterRole: warning
+  rolebindingClusterAdminRole: warning

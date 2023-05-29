@@ -37,7 +37,8 @@ jobs:
           wget -q https://github.com/zegl/kube-score/releases/download/v${KUBE_SCORE_VER}/kube-score_${KUBE_SCORE_VER}_linux_amd64 && sudo mv kube-score_${KUBE_SCORE_VER}_linux_amd64 /usr/local/bin/kube-score && sudo chmod +x /usr/local/bin/kube-score
           wget -q https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz && tar xf kubeval-linux-amd64.tar.gz && sudo mv kubeval /usr/local/bin && sudo chmod +x /usr/local/bin/kubeval
           wget -q https://github.com/FairwindsOps/polaris/releases/download/${POLARIS_VER}/polaris_linux_amd64.tar.gz && tar xf polaris_linux_amd64.tar.gz && sudo mv polaris /usr/local/bin && sudo chmod +x /usr/local/bin/polaris
-        
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git
+
       - name: Verify
         run: |
           yamllint --version
@@ -63,7 +64,6 @@ jobs:
           helm list
           kubectl get pod
           
-
       - name: Checks
         run: |
           make lint

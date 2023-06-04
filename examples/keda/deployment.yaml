@@ -1,7 +1,7 @@
 image:
   registry: docker.io
   repository: "nginx"
-  tag: "1.11.0"
+  tag: "1.14.0"
   port: 80
 deployment:
   enabled: true

@@ -10,6 +10,13 @@ job:
       envMap:
         foo:
           value: bar
+      resources:
+        requests:
+          cpu: 1m
+          memory: 16Mi
+        limits:
+          cpu: 10m
+          memory: 32Mi
     bash:
       restartPolicy: Never
       backoffLimit: 6
@@ -21,3 +28,10 @@ job:
         - -c
         - echo "Hello world!" && sleep 5
       restartPolicy: Never
+      resources:
+        requests:
+          cpu: 1m
+          memory: 16Mi
+        limits:
+          cpu: 10m
+          memory: 32Mi

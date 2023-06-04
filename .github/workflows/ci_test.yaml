@@ -52,6 +52,7 @@ jobs:
           kube-linter version
           kube-score version
           polaris version
+          kubeconform -v
                   
       - name: Helm install
         run: |

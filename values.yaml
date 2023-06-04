@@ -7,7 +7,7 @@ namespaceOverride:
 
 image:
   registry: docker.io
-  repository: debu99/nginx
+  repository: nginx
   tag: 1.0.0
   # overwrite default image command using this list
   command:
@@ -520,7 +520,7 @@ cronJob:
       startingDeadlineSeconds: 60
       serviceAccount:
         enabled: false
-      schedule: "* * * 8 *"
+      # schedule: "* * * 8 *"
       envMap: {}
         # foo:
         #   value: bar
@@ -534,10 +534,10 @@ cronJob:
         #     secretKeyRef:
         #       name: secret-name
         #       key: secretKey
-      image: docker.io/nginx:v1.2.3
-      imagePullPolicy: IfNotPresent
-      command: ["/bin/bash"]
-      args: ["-c","sleep 5000"]
+      # image: docker.io/nginx:v1.2.3
+      # imagePullPolicy: IfNotPresent
+      # command: ["/bin/bash"]
+      # args: ["-c","sleep 5000"]
       resources:  {}
         # requests:
         #   memory: 5Gi
@@ -691,21 +691,21 @@ configMap:
   # key: value
   configs:
     # nameSuffix of configMap
-    configmap1:
-      data: |-
-        API_PORT: "8080"
-        LOG_LEVEL: info
-        .env: |
-          FOO=BAR
-          APP=test
-        example.json: |
-          {
-            "test": "123"
-          }
-    configmap2:
-      data: |-
-        example.yaml: |
-          "test": "123"
+    # configmap1:
+    #   data: |-
+    #     API_PORT: "8080"
+    #     LOG_LEVEL: info
+    #     .env: |
+    #       FOO=BAR
+    #       APP=test
+    #     example.json: |
+    #       {
+    #         "test": "123"
+    #       }
+    # configmap2:
+    #   data: |-
+    #     example.yaml: |
+    #       "test": "123"
 
 ##########################################################
 # External Secrets
@@ -719,25 +719,25 @@ externalSecret:
   # RefreshInterval is the amount of time before the values reading again from the SecretStore provider
   refreshInterval: "2s"
   secrets:   
-    mongodb:
-      data:
-        mongo-password: 
-          remoteRef: 
-            key: monodb
-            property: password 
-      secretStore:                       
-        name: secret-store-name-2    # specify if value is other than default secretstore  
-      labels:
-        labels.example.com/name: secret
-    postgres:
-      # Used to fetch all properties from the Provider key
-      dataFrom:
-        key: postgres
-    reg-cred:
-      refreshInterval: "15s"
-      type: kubernetes.io/dockerconfigjson
-      dataFrom:
-        key: regcrd
+    # mongodb:
+    #   data:
+    #     mongo-password: 
+    #       remoteRef: 
+    #         key: monodb
+    #         property: password 
+    #   secretStore:                       
+    #     name: secret-store-name-2    # specify if value is other than default secretstore  
+    #   labels:
+    #     labels.example.com/name: secret
+    # postgres:
+    #   # Used to fetch all properties from the Provider key
+    #   dataFrom:
+    #     key: postgres
+    # reg-cred:
+    #   refreshInterval: "15s"
+    #   type: kubernetes.io/dockerconfigjson
+    #   dataFrom:
+    #     key: regcrd
 
 ##########################################################
 # PersistentVolumeClaim
@@ -908,17 +908,17 @@ keda:
   ## Check https://keda.sh/docs/2.10/concepts/authentication/ for TriggerAuthentication spec
   ## And check the scaler's doc for the required field in TriggerAuthentication
   triggerAuthentication:
-    kafka:
-      enabled: false
-      # spec: {}
-      spec:
-        secretTargetRef:
-        - parameter: username
-          name: keda-kafka-secrets
-          key: username
-        - parameter: password
-          name: keda-kafka-secrets
-          key: password
+    # kafka:
+    #   enabled: false
+    #   # spec: {}
+    #   spec:
+    #     secretTargetRef:
+    #     - parameter: username
+    #       name: keda-kafka-secrets
+    #       key: username
+    #     - parameter: password
+    #       name: keda-kafka-secrets
+    #       key: password
 
 ##########################################################
 # CustomResources

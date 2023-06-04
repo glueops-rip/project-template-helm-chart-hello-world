@@ -1,0 +1,55 @@
+suite: Keda TriggerAuthentication
+
+templates:
+  - templates/keda-triggerAuthentication.yaml
+
+tests:
+  # Test Case 5: Check if Kafka triggerAuthentication is disabled by default
+  - it: should not have Kafka triggerAuthentication enabled by default
+    set:
+      keda.enabled: true
+      keda.triggerAuthentication.kafka.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # Test Case 6: Check Kafka triggerAuthentication spec parameters
+  - it: should have correct Kafka triggerAuthentication spec parameters
+    set:
+      keda:
+        enabled: true
+        triggerAuthentication:
+          kafka:
+            enabled: true
+            spec:
+              secretTargetRef:
+              - parameter: username
+                name: keda-kafka-secrets
+                key: username
+              - parameter: password
+                name: keda-kafka-secrets
+                key: password
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: TriggerAuthentication
+      - equal:
+          path: .spec.secretTargetRef[0].parameter
+          value: username
+      - equal:
+          path: .spec.secretTargetRef[0].key
+          value: username
+      - equal:
+          path: .spec.secretTargetRef[0].name
+          value: keda-kafka-secrets
+      - equal:
+          path: .spec.secretTargetRef[1].name
+          value: keda-kafka-secrets
+      - equal:
+          path: .spec.secretTargetRef[1].parameter
+          value: password
+      - equal:
+          path: .spec.secretTargetRef[1].key
+          value: password
+

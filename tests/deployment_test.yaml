@@ -75,3 +75,411 @@ tests:
           path: spec.template.spec.containers[?(@.name == "unittest")].resources.requests
       - isKind:
           of: Deployment
+
+  - it: should use the correct image
+    set:
+      deployment.enabled: true
+      image.registry: docker.io
+      image.repository: nginx
+      image.tag: 1.0.0
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: '^docker.io/nginx:1.0.0$'
+
+  - it: should use the correct port
+    set:
+      image.port: 9999
+      deployment.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 9999
+
+  - it: should use the correct deployment strategy
+    set:
+      deployment.enabled: true
+      deployment.replicas: 1
+      deployment.strategy: RollingUpdate
+      deployment.securityContext.fsGroup: 2000
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.strategy.type
+          value: RollingUpdate
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 2000
+
+  - it: should have correct liveness and readiness probes
+    set:
+      deployment.enabled: true
+      deployment.livenessProbe.httpGet.path: /health
+      deployment.livenessProbe.initialDelaySeconds: 10
+      deployment.livenessProbe.periodSeconds: 10
+      deployment.livenessProbe.timeoutSeconds: 5
+      deployment.livenessProbe.failureThreshold: 5
+      deployment.livenessProbe.successThreshold: 1
+      deployment.readinessProbe.httpGet.path: /health
+      deployment.readinessProbe.initialDelaySeconds: 10
+      deployment.readinessProbe.periodSeconds: 10
+      deployment.readinessProbe.timeoutSeconds: 1
+      deployment.readinessProbe.failureThreshold: 3
+      deployment.readinessProbe.successThreshold: 1
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /health
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.timeoutSeconds
+          value: 5
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          value: 5
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.successThreshold
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /health
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.initialDelaySeconds
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.periodSeconds
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.timeoutSeconds
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.failureThreshold
+          value: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.successThreshold
+          value: 1
+
+  - it: should include the correct environment variables
+    set:
+      deployment.enabled: true
+      deployment.envVariables:
+        - name: FOO
+          value: "bar"
+        - name: BUZZ
+          value: "fizz"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: FOO
+            value: "bar"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: BUZZ
+            value: "fizz"
+
+  - it: should set up the liveness probe correctly
+    set:
+      deployment.enabled: true
+      deployment.livenessProbe:
+        httpGet:
+          path: /health
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 5
+        successThreshold: 1
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /health
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.timeoutSeconds
+          value: 5
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          value: 5
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.successThreshold
+          value: 1
+
+  # Test case for optional initContainers
+  - it: should set initContainers if provided
+    set:
+      deployment.enabled: true
+      deployment.initContainers:
+        - name: init-mydb
+          image: busybox:1.28
+          command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: init-mydb
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: busybox:1.28
+      - equal:
+          path: spec.template.spec.initContainers[0].command
+          value: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+
+  # Test case for optional hostAliases
+  - it: should set hostAliases if provided
+    set:
+      deployment.enabled: true
+      deployment.hostAliases:
+        - ip: "127.0.0.1"
+          hostnames:
+          - "foo.local"
+          - "bar.local"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - equal:
+          path: spec.template.spec.hostAliases[0].ip
+          value: "127.0.0.1"
+      - exists:
+          path: spec.template.spec.hostAliases[0].hostnames
+          value: "foo.local"
+      - exists:
+          path: spec.template.spec.hostAliases[0].hostnames
+          value: "bar.local"
+
+  # Test case for optional envSecrets
+  - it: should set envSecrets if provided
+    set:
+      deployment.enabled: true
+      deployment.envSecrets:
+        - variable: MYSQL_PASSWORD
+          secretName: databases-secrets
+          secretKey: mysql-password
+        - variable: JWT
+          secretName: web-tokens
+          secretKey: jwt
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: databases-secrets
+                key: mysql-password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: JWT
+            valueFrom:
+              secretKeyRef:
+                name: web-tokens
+                key: jwt
+
+  # Test case for optional envConfigMaps
+  - it: should set envConfigMaps if provided
+    set:
+      deployment.enabled: true
+      deployment.envConfigMaps:
+        - variable: MYSQL_HOST
+          configMapName: mysql-config
+          configMapKey: host
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: MYSQL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: mysql-config
+                key: host
+
+  # Test case for optional envMap
+  - it: should set envMap if provided
+    set:
+      deployment.enabled: true
+      deployment.envMap: 
+        foo:
+          value: bar
+        foo1:
+          valueFrom:
+            configMapKeyRef:
+              name: configmap-name
+              key: configMapKey
+        foo2:
+          valueFrom:
+            secretKeyRef:
+              name: secret-name
+              key: secretKey
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: foo
+            value: bar
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: foo1
+            valueFrom:
+              configMapKeyRef:
+                name: configmap-name
+                key: configMapKey
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: foo2
+            valueFrom:
+              secretKeyRef:
+                name: secret-name
+                key: secretKey
+
+  # Test case for optional serviceAccount
+  - it: should set serviceAccount if enabled
+    set:
+      deployment.enabled: true
+      deployment.serviceAccount.enabled: true
+      deployment.serviceAccount.name: myserviceaccount
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: myserviceaccount
+
+  # Test case for optional nodeSelector
+  - it: should set nodeSelector if provided
+    set:
+      deployment.enabled: true
+      deployment.nodeSelector: 
+        node-role.kubernetes.io/on-demand: "true"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value: 
+            node-role.kubernetes.io/on-demand: "true"
+
+  # Test case for optional tolerations
+  - it: should set tolerations if provided
+    set:
+      deployment.enabled: true
+      deployment.tolerations:
+        - key: "node-role.kubernetes.io/on-demand"
+          operator: "Equal"
+          value: "true"
+          effect: "PreferNoSchedule"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "node-role.kubernetes.io/on-demand"
+            operator: "Equal"
+            value: "true"
+            effect: "PreferNoSchedule"
+
+  # Test case for optional initContainers
+  - it: should set initContainers if provided
+    set:
+      deployment.enabled: true
+      deployment.initContainers:
+        - name: init-mydb
+          image: busybox:1.28
+          command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: init-mydb
+            image: busybox:1.28
+            command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]

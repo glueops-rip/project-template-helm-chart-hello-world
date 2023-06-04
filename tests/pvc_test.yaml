@@ -1,0 +1,28 @@
+suite: PersistentVolumeClaim
+templates:
+  - pvc.yaml
+tests:
+  - it: should not create PVC when enabled is false
+    set:
+      PersistentVolumeClaim.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create PVC when enabled is true
+    set:
+      PersistentVolumeClaim:
+        enabled: true
+        accessMode: ReadWriteOnce
+        storageSize: 8Gi
+    asserts:
+      - isKind:
+          of: PersistentVolumeClaim
+      - isAPIVersion:
+          of: v1
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+      - equal:
+          path: spec.resources.requests.storage
+          value: 8Gi

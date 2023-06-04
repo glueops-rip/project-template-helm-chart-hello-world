@@ -67,7 +67,7 @@ app.kubernetes.io/teamowner: {{ .Values.teamOwner }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 helm.sh/chart: {{ include "chart.name" . }}
 {{- if .Values.commonLabels }}
-{{- range $key, $value := .commonLabels }}
+{{- range $key, $value := .Values.commonLabels }}
 {{ $key }}: {{ $value | quote }}
 {{- end }}
 {{- end }}

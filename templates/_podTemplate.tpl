@@ -44,6 +44,8 @@ spec:
   serviceAccountName: {{ include "chart.serviceAccountName" .Root }}
   {{- else if hasKey .serviceAccount "name" }}
   serviceAccountName: {{ .serviceAccount.name | default .Root.Values.serviceAccount.name | default (include "app.name" .Root) }}
+  {{- else }}
+  serviceAccountName: {{ include "app.name" .Root }}
   {{- end }}
   {{- end }}
   {{- if hasKey .serviceAccount "automountServiceAccountToken" }}

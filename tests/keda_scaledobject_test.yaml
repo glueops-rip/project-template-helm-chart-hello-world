@@ -1,0 +1,52 @@
+suite: Keda ScaledObject
+
+templates:
+  - templates/keda-scaledObject.yaml
+
+tests:
+  # Test Case 1: Check if KEDA is disabled by default
+  - it: should not have KEDA enabled by default
+    set:
+      keda.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # Test Case 2: Check if ScaledObject is disabled by default
+  - it: should not have ScaledObject enabled by default
+    set:
+      keda.enabled: true
+      keda.scaledObject.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # Test Case 3: Check if TriggersMap is empty by default
+  - it: should have empty TriggersMap by default
+    set:
+      keda.enabled: true
+      keda.scaledObject.enabled: true
+      keda.scaledObject.spec.triggersMap: {}
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ScaledObject
+      - equal:
+          path: .spec.triggers
+          value: []
+
+  # Test Case 4: Check if Triggers is empty by default
+  - it: should have empty Triggers by default
+    set:
+      keda.enabled: true
+      keda.scaledObject.enabled: true
+      keda.scaledObject.spec.triggers: []
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ScaledObject
+      - equal:
+          path: .spec.triggers
+          value: []

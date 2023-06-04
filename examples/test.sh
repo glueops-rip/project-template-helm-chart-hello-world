@@ -6,7 +6,7 @@ if [[ ${DEBUG} -eq "1" ]]; then
   set -o xtrace
 fi
 
-IGNORE_TESTS_KUBE_SCORE=(--ignore-test=container-image-pull-policy --ignore-test=container-security-context-readonlyrootfilesystem --ignore-test=container-security-context-user-group-id --ignore-test=pod-networkpolicy --ignore-test=ingress-targets-service --ignore-test=container-ephemeral-storage-request-and-limit)
+IGNORE_TESTS_KUBE_SCORE=(--ignore-test=container-image-pull-policy --ignore-test=container-security-context-readonlyrootfilesystem --ignore-test=container-security-context-user-group-id --ignore-test=pod-networkpolicy --ignore-test=container-ephemeral-storage-request-and-limit --ignore-test=ingress-targets-service)
 
 export KUBE_VER=1.27
 export KUBE_VER_FULL=`echo $KUBE_VER`.2
@@ -57,6 +57,8 @@ if [[ -d "testcases/" ]]; then
     helm template ../../ -f ../../values.yaml -f $yaml
     echo "[INFO] yamllint on file: $yaml"
     helm template ../../ -f ../../values.yaml -f $yaml | yamllint -c ../.yamllint.yaml -
+    echo "[INFO] kubeconform on file: $yaml"
+    helm template ../../ -f ../../values.yaml -f $yaml | kubeconform -summary -skip=ExternalSecret,TriggerAuthentication,ScaledObject -
     echo "[INFO] kube-linter on file: $yaml"
     helm template ../../ -f ../../values.yaml -f $yaml | kube-linter lint --config ../.kube-linter.yaml -
     echo "[INFO] kube-score on file: $yaml"

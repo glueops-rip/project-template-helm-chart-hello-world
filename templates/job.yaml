@@ -4,11 +4,10 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  {{- $nowSuffix := (now | date "200601021504") }}
-  name: {{ include "app.name" $ }}-{{$name}}-{{$nowSuffix}}
+  name: {{ include "app.name" $ }}-{{$name}}
   namespace: {{ include "app.namespace" $ }}
   labels:
-    {{- include "chart.commonLabels" (merge $ (dict  "suffixName" (printf "%s-%s" $name $nowSuffix))) | indent 4 }}
+    {{- include "chart.commonLabels" (merge $ (dict  "suffixName" $name)) | indent 4 }}
     {{- if $.Values.job.labels }}
     {{- range $key, $value := $.Values.job.labels }}
     {{$key}}: {{$value | quote}}
@@ -29,11 +28,30 @@ metadata:
     {{- end }}
 spec:
   suspend: {{ $job.suspend | default false }}
+  {{- if $.Values.job.parallelism }}
+  parallelism: {{ $.Values.job.parallelism }}
+  {{- else if $job.parallelism }}
+  parallelism: {{ $job.parallelism }}
+  {{- end }}
+  {{- if $.Values.job.completions }}
+  completions: {{ $.Values.job.completions }}
+  {{- else if $job.completions }}
+  completions: {{ $job.completions }}
+  {{- end }}
   {{- if $.Values.job.backoffLimit }}
   backoffLimit: {{ $.Values.job.backoffLimit }}
+  {{- else if $job.backoffLimit }}
+  backoffLimit: {{ $job.backoffLimit }}
   {{- end }}
   {{- if $.Values.job.ttlSecondsAfterFinished }}
   ttlSecondsAfterFinished: {{ $.Values.job.ttlSecondsAfterFinished }}
+  {{- else if $job.ttlSecondsAfterFinished }}
+  ttlSecondsAfterFinished: {{ $job.ttlSecondsAfterFinished }}
+  {{- end }}
+  {{- if $.Values.job.podFailurePolicy }}
+  podFailurePolicy: {{- toYaml $.Values.job.podFailurePolicy | nindent 4 }}
+  {{- else if $job.podFailurePolicy }}
+  podFailurePolicy: {{- toYaml $job.podFailurePolicy | nindent 4 }}
   {{- end }}
   {{- $context :=  merge (dict "resourceType" "job" "name" $name "Chart" $.Chart "Root" $) $job }}
   template: 

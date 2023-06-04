@@ -1,0 +1,56 @@
+appName: "nginx"
+appVersion: "0.8"
+
+image:
+  registry: registry.k8s.io
+  repository: nginx-slim
+  tag: 0.8
+  port: 80
+
+service:
+  enabled: true
+  headlessService: true
+
+podDisruptionBudget:
+  enabled: true
+
+statefulSet:
+  enabled: true
+  replicas: 2
+  volumeClaimTemplates:
+    www: 
+      accessModes: "ReadWriteOnce"
+      requestsStorage: 1Gi
+      mountPath: /usr/share/nginx/html
+
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 80
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 80
+
+  resources:
+    requests:
+      cpu: 1m
+      memory: 16Mi
+    limits:
+      cpu: 10m
+      memory: 32Mi
+
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - "nginx"
+          topologyKey: topology.kubernetes.io/zone

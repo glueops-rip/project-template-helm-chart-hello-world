@@ -1,4 +1,4 @@
-{{- if .Values.statefulSet.enabled }}
+{{- if and .Values.statefulSet.enabled (not .Values.deployment.enabled) }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -16,16 +16,39 @@ spec:
       {{- if .Values.statefulSet.matchLabels }}
       {{- toYaml .Values.statefulSet.matchLabels | nindent 6 }}
       {{- end }}
-  serviceName: {{ include "app.name" . }}
+  serviceName: {{ .Values.statefulSet.serviceName | default (include "app.name" .) }}
+  {{- if .Values.statefulSet.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.statefulSet.revisionHistoryLimit }}
+  {{- end }}
   replicas: {{ int (.Values.statefulSet.replicas | default 1) }}
-  {{- if .Values.statefulSet.strategy }}
-  strategy:
-    {{- $strategy := .Values.statefulSet.strategy |  default "RollingUpdate" }}
+  {{- if .Values.statefulSet.minReadySeconds }}
+  minReadySeconds: {{ .Values.statefulSet.minReadySeconds }}
+  {{- end }}
+  {{- if .Values.statefulSet.updateStrategy }}
+  updateStrategy:
+    {{- $strategy := .Values.statefulSet.updateStrategy |  default "RollingUpdate" }}
     type: {{ $strategy }}
   {{- end }}
 
   {{- $context :=  merge .Values.statefulSet (dict "resourceType" "statefulSet" "Chart" $.Chart "Root" $) }}
   template: 
   {{- include "chart.podTemplate" $context | nindent 4 }}
+  # volumeClaimTemplates
+  {{- if .Values.statefulSet.volumeClaimTemplates }}
+  {{- range $key, $value := .Values.statefulSet.volumeClaimTemplates }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{$key}}
+    spec:
+      accessModes: 
+        - {{$value.accessModes}}
+      {{- if hasKey $value "storageClassName" }}
+      storageClassName: {{$value.storageClassName}}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{$value.requestsStorage}}
+  {{- end }}
+  {{- end }}
 
 {{- end }}

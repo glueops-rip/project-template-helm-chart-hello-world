@@ -11,11 +11,11 @@ metadata:
     cronjob: {{ include "app.name" .Root }}-{{.name}}
     {{- else if eq .resourceType "job" }}
     resource-type: "job"
-    {{- end }}
     {{- if .suffixName }}
     job: {{ include "app.name" .Root }}-{{.suffixName}}
     {{- else}}
-    job: {{ include "app.name" .Root }}-{{.name}}-{{ now | date "200601021504" }}
+    job: {{ include "app.name" .Root }}-{{.name}}
+    {{- end }}
     {{- end }}
     {{- if .labels }}
     {{- range $key, $value := .labels }}
@@ -39,7 +39,7 @@ spec:
   hostAliases:      
   {{- toYaml .hostAliases | nindent 4 }}
   {{- end }}
-  {{- if .serviceAccount.enabled }}
+  {{- if and (hasKey . "serviceAccount") .serviceAccount.enabled }}
   {{- if or (eq .resourceType "deployment") (eq .resourceType "statefulSet") }}
   serviceAccountName: {{ include "chart.serviceAccountName" .Root }}
   {{- else if hasKey .serviceAccount "name" }}
@@ -48,7 +48,7 @@ spec:
   serviceAccountName: {{ include "app.name" .Root }}
   {{- end }}
   {{- end }}
-  {{- if hasKey .serviceAccount "automountServiceAccountToken" }}
+  {{- if and (hasKey . "serviceAccount") (hasKey .serviceAccount "automountServiceAccountToken") }}
   automountServiceAccountToken: {{ .serviceAccount.automountServiceAccountToken }}
   {{- end }}
   {{- if .nodeSelector }}
@@ -136,7 +136,7 @@ spec:
     {{- if .image }}
     image: {{.image}}
     {{- else }}
-    image: {{ printf "%s/%s:%s" .Root.Values.image.registry .Root.Values.image.repository (.Root.Values.image.tag | default .Root.Values.appVersion | default .Chart.Version) }}
+    image: {{ printf "%s/%s:%s" .Root.Values.image.registry .Root.Values.image.repository (toString (.Root.Values.image.tag | default .Root.Values.appVersion | default .Chart.Version)) }}
     {{- end }}
     {{- if .Root.Values.image.command }}
     command:

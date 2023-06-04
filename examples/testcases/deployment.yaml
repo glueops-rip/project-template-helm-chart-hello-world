@@ -1,0 +1,63 @@
+appName: "podinfo"
+appVersion: "6.3.6"
+
+image:
+  registry: ghcr.io
+  repository: stefanprodan/podinfo
+  tag: 6.3.6
+  port: 9898
+
+podDisruptionBudget:
+  enabled: true
+
+deployment:
+  enabled: true
+  resources:
+    requests:
+      cpu: 1m
+      memory: 16Mi
+    limits:
+      cpu: 10m
+      memory: 32Mi
+
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 9898
+    initialDelaySeconds: 1
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: 9898
+    initialDelaySeconds: 1
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+    
+  containerPorts:
+  - name: http-metrics
+    port: 9797
+  - name: grpc
+    port: 9999
+
+  affinity:
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     podAffinityTerm:
+    #       labelSelector:
+    #         matchExpressions:
+    #         - key: app.kubernetes.io/name
+    #           operator: In
+    #           values:
+    #           - "podinfo"
+    #       topologyKey: topology.kubernetes.io/zone
+
+service:
+  enabled: true

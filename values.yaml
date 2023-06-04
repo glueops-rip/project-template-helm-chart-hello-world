@@ -576,51 +576,51 @@ cronJob:
 job:
   enabled: false
   jobs:
-    db-migration:
-      # ttlSecondsAfterFinished: 300
-      # backoffLimit: 2
-      serviceAccount:
-        enabled: false
-      envMap: {}
-        # foo:
-        #   value: bar
-        # foo1:
-        #   valueFrom:
-        #     configMapKeyRef:
-        #       name: configmap-name
-        #       key: configMapKey
-        # foo2:
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: secret-name
-        #       key: secretKey
+    # db-migration:
+    #   # ttlSecondsAfterFinished: 300
+    #   # backoffLimit: 2
+    #   serviceAccount:
+    #     enabled: false
+    #   envMap: {}
+    #     # foo:
+    #     #   value: bar
+    #     # foo1:
+    #     #   valueFrom:
+    #     #     configMapKeyRef:
+    #     #       name: configmap-name
+    #     #       key: configMapKey
+    #     # foo2:
+    #     #   valueFrom:
+    #     #     secretKeyRef:
+    #     #       name: secret-name
+    #     #       key: secretKey
 
-      affinity:
-        # nodeAffinity:
-        #   requiredDuringSchedulingIgnoredDuringExecution:
-        #     nodeSelectorTerms:
-        #       - matchExpressions:
-        #           - key: k8s-node-role/job-worker
-        #             operator: In
-        #             values:
-        #               - "true"
-        #           - key: k8s-node-role/on-demand-worker
-        #             operator: In
-        #             values:
-        #               - "true"
-        #           - key: dedicated
-        #             operator: In
-        #             values:
-        #               - "general-purpose"
-      tolerations:
-        # - effect: NoSchedule
-        #   key: k8s-node-role/job-worker
-        #   operator: Equal
-        #   value: "true"
-        # - effect: PreferNoSchedule
-        #   key: k8s-node-role/on-demand-worker
-        #   operator: Equal
-        #   value: "true"
+    #   affinity:
+    #     # nodeAffinity:
+    #     #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     #     nodeSelectorTerms:
+    #     #       - matchExpressions:
+    #     #           - key: k8s-node-role/job-worker
+    #     #             operator: In
+    #     #             values:
+    #     #               - "true"
+    #     #           - key: k8s-node-role/on-demand-worker
+    #     #             operator: In
+    #     #             values:
+    #     #               - "true"
+    #     #           - key: dedicated
+    #     #             operator: In
+    #     #             values:
+    #     #               - "general-purpose"
+    #   tolerations:
+    #     # - effect: NoSchedule
+    #     #   key: k8s-node-role/job-worker
+    #     #   operator: Equal
+    #     #   value: "true"
+    #     # - effect: PreferNoSchedule
+    #     #   key: k8s-node-role/on-demand-worker
+    #     #   operator: Equal
+    #     #   value: "true"
 
 ##########################################################
 # Pod Disruption Budget - PDB
@@ -671,14 +671,14 @@ secret:
     # key: value
   secrets:
     # nameSuffix of Secret
-    credentials:
-      data:
-        secretKey1: secretValue1
-        secretKey2: secretValue2
-    password:
-      data:
-        secretKey1: secretValue1
-        secretKey2: secretValue2
+    # credentials:
+    #   data:
+    #     secretKey1: secretValue1
+    #     secretKey2: secretValue2
+    # password:
+    #   data:
+    #     secretKey1: secretValue1
+    #     secretKey2: secretValue2
 
 ##########################################################
 # Configmap
@@ -749,17 +749,17 @@ PersistentVolumeClaim:
   annotations:
   #  "helm.sh/resource-policy": keep
   mountPVC: false
-  mountPath: "/mnt/test"
+  # mountPath: "/mnt/test"
   # name: ""
-  accessMode: ReadWriteOnce
+  # accessMode: ReadWriteOnce
   ## If defined, storageClass: <storageClass>
   ## If set to "-", storageClass: "", which disables dynamic provisioning
   ## If undefined (the default) or set to null, no storageClass spec is set, choosing the default provisioner. (gp2 on AWS, standard on GKE, AWS & OpenStack)
   ##
-  storageClass: "-"
-  storageSize: 8Gi
-  volumeMode: ""
-  volumeName: ""
+  # storageClass: "-"
+  # storageSize: 8Gi
+  # volumeMode: ""
+  # volumeName: ""
 
 ##########################################################
 # Ingress

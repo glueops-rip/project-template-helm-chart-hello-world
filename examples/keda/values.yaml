@@ -3,7 +3,7 @@ image:
 podDisruptionBudget:
   enabled: true
 deployment:
-  image: nginx:1.0.0
+  image: nginx:1.11.0
   enabled: true
   maxUnavailable: 25%
   resources:
@@ -21,6 +21,18 @@ deployment:
     httpGet:
       path: /
       port: 80
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - "example-app"
+          topologyKey: topology.kubernetes.io/zone
 keda:
   enabled: true
   scaledObject:

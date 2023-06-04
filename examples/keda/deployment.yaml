@@ -1,8 +1,8 @@
 image:
-  registry: ghcr.io
-  repository: "stefanprodan/podinfo"
-  tag: "6.3.6"
-  port: 9898
+  registry: docker.io
+  repository: "nginx"
+  tag: "1.11.0"
+  port: 80
 deployment:
   enabled: true
   replicas: 1
@@ -15,12 +15,12 @@ deployment:
       memory: 50Mi
   livenessProbe:
     httpGet:
-      path: /healthz
-      port: 9898
+      path: /
+      port: 80
   readinessProbe:
     httpGet:
-      path: /healthz
-      port: 9898
+      path: /
+      port: 80
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:

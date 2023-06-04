@@ -43,7 +43,7 @@ deployment:
 
   readinessProbe:
     exec:
-      command: ["bash", "-c", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "ping"]
+      command: ["bash", "-c", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "select", "1"]
 
   affinity:
     podAntiAffinity:

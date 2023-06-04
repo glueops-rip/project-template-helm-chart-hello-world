@@ -15,7 +15,7 @@ jobs:
           # - k3s versions at https://github.com/k3s-io/k3s/tags
           # - helm versions at https://github.com/helm/helm/tags
           k3s-version: v1.27.2+k3s1
-          helm-version: v3.7.0
+          helm-version: v3.11.2
           metrics-enabled: false
           traefik-enabled: false
 

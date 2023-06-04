@@ -24,7 +24,7 @@ tests:
           of: Job
       - matchRegex:
           path: metadata.name
-          pattern: "-db-migration-.*"
+          pattern: "-db-migration$"
       - notExists:
           path: spec.template.spec.serviceAccountName
           value: ""

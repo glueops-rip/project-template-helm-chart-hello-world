@@ -5,8 +5,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   {{- $nowSuffix := (now | date "200601021504") }}
-  name: {{ template "app.name" $ }}-{{$name}}-{{$nowSuffix}}
-  namespace: {{ template "app.namespace" $ }}
+  name: {{ include "app.name" $ }}-{{$name}}-{{$nowSuffix}}
+  namespace: {{ include "app.namespace" $ }}
   labels:
     {{- include "chart.commonLabels" (merge $ (dict  "suffixName" (printf "%s-%s" $name $nowSuffix))) | indent 4 }}
     {{- if $.Values.job.labels }}
@@ -35,7 +35,7 @@ spec:
   {{- if $.Values.job.ttlSecondsAfterFinished }}
   ttlSecondsAfterFinished: {{ $.Values.job.ttlSecondsAfterFinished }}
   {{- end }}
-  {{- $context := set (set (merge $job (dict "resourceType" "job" "name" $name)) "Chart" $.Chart) "Root" $ }}
+  {{- $context :=  merge (dict "resourceType" "job" "name" $name "Chart" $.Chart "Root" $) $job }}
   template: 
   {{- include "chart.podTemplate" $context | nindent 4 }}
 

@@ -1,5 +1,6 @@
-name: test
-on: [push]
+name: Test Helm Chart
+on: 
+  - push
 
 jobs:
   k8s-test:
@@ -13,22 +14,26 @@ jobs:
           # - k3s release channels at https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
           # - k3s versions at https://github.com/k3s-io/k3s/tags
           # - helm versions at https://github.com/helm/helm/tags
-          k3s-version: v1.26.3+k3s1
+          k3s-version: v1.27.2+k3s1
           helm-version: v3.7.0
           metrics-enabled: false
           traefik-enabled: false
 
       - name: Checkout
         uses: actions/checkout@v2
-      
+
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.4.0
+
+      - name: Linting
+        run: make lint
 
       - name: Install
         env:
           KUBE_LINTER_VER: 0.6.3
           KUBE_SCORE_VER: 1.16.1
           POLARIS_VER: 7.4.2
+          KUBECONFORM_VER: 0.6.1
         run: |
           sudo apt-get update -yqq
           sudo apt-get install -yqq yamllint wget
@@ -37,8 +42,9 @@ jobs:
           wget -q https://github.com/zegl/kube-score/releases/download/v${KUBE_SCORE_VER}/kube-score_${KUBE_SCORE_VER}_linux_amd64 && sudo mv kube-score_${KUBE_SCORE_VER}_linux_amd64 /usr/local/bin/kube-score && sudo chmod +x /usr/local/bin/kube-score
           wget -q https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz && tar xf kubeval-linux-amd64.tar.gz && sudo mv kubeval /usr/local/bin && sudo chmod +x /usr/local/bin/kubeval
           wget -q https://github.com/FairwindsOps/polaris/releases/download/${POLARIS_VER}/polaris_linux_amd64.tar.gz && tar xf polaris_linux_amd64.tar.gz && sudo mv polaris /usr/local/bin && sudo chmod +x /usr/local/bin/polaris
+          wget -q https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VER}/kubeconform-linux-amd64.tar.gz && tar xf kubeconform-linux-amd64.tar.gz && sudo mv kubeconform /usr/local/bin && sudo chmod +x /usr/local/bin/kubeconform
           helm plugin install https://github.com/helm-unittest/helm-unittest.git
-
+        
       - name: Verify
         run: |
           yamllint --version
@@ -46,7 +52,7 @@ jobs:
           kube-linter version
           kube-score version
           polaris version
-          
+                  
       - name: Helm install
         run: |
           echo "kubeconfig: $KUBECONFIG"
@@ -62,11 +68,11 @@ jobs:
           helm install keda kedacore/keda --version 2.10.2 --wait
           helm install prometheus prometheus-community/prometheus-operator-crds --wait
           helm list
-          kubectl get pod
-          
+
       - name: Checks
+        env:
+          CI: "true"
         run: |
           make lint
           make unittest
           make test
-

@@ -3,7 +3,7 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ template "app.name" . }}
+  name: {{ include "app.name" . }}
   namespace: {{ include "app.namespace" . }}
   labels:
     {{- include "chart.commonLabels" . | indent 4 }}
@@ -20,6 +20,8 @@ spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   {{- else if .Values.podDisruptionBudget.maxUnavailable }}
   maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{- else if eq (int .Values.podDisruptionBudget.maxUnavailable) 0 }}
+  maxUnavailable: 0
   {{- else }}
   minAvailable: 1
   {{- end }}

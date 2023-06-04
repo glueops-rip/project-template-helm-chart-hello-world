@@ -1,0 +1,13 @@
+# JetBrains - Developer Tools for Professionals and Teams
+.idea/
+
+# Visual Studio Code - Code Editing - Redefined
+.vscode/
+
+# Operating System
+.DS_Store
+
+temp/
+test/
+*.old
+__snapshot__

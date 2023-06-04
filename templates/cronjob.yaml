@@ -4,8 +4,8 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ template "app.name" $ }}-{{$name}}
-  namespace: {{ template "app.namespace" $ }}
+  name: {{ include "app.name" $ }}-{{$name}}
+  namespace: {{ include "app.namespace" $ }}
   labels:
     {{- include "chart.commonLabels" (merge $ (dict  "suffixName" $name)) | indent 4 }}
     {{- if $.Values.cronJob.labels }}
@@ -39,7 +39,7 @@ spec:
   {{ end }}
   jobTemplate:
     spec:
-      {{- $context := set (set (merge $job (dict "resourceType" "cronJob" "name" $name)) "Chart" $.Chart) "Root" $ }}
+      {{- $context :=  merge (dict "resourceType" "cronJob" "name" $name "Chart" $.Chart "Root" $) $job }}
       template: 
       {{- include "chart.podTemplate" $context | nindent 8 }}
 {{- end }}

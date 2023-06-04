@@ -36,10 +36,12 @@ Allow the release namespace to be overridden
 
 {{/*Create the name of the service account to use*/}}
 {{- define "chart.serviceAccountName" -}}
-{{- if .Values.serviceAccount.name -}}
+{{- if hasKey .Values.serviceAccount "name" -}}
 {{ .Values.serviceAccount.name }}
-{{- else if .Values.deployment.serviceAccount.name }}
+{{- else if and .Values.deployment.enabled (hasKey .Values.deployment.serviceAccount "name") -}}
 {{ .Values.deployment.serviceAccount.name }}
+{{- else if and .Values.statefulSet.enabled (hasKey .Values.statefulSet.serviceAccount "name") -}}
+{{ .Values.statefulSet.serviceAccount.name }}
 {{- else -}}
 {{ include "app.name" . }}
 {{- end -}}
@@ -52,13 +54,16 @@ app.kubernetes.io/name: {{ include "app.name" . }}-{{.suffixName}}
 {{- else}}
 app.kubernetes.io/name: {{ include "app.name" . }}
 {{- end }}
-app.kubernetes.io/version: {{ include "app.version" . }}
+app.kubernetes.io/version: {{ include "app.version" . | quote }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/* Common labels for the whole chart */}}
 {{- define "chart.commonLabels" -}}
 {{ include "chart.appLabels" . }}
+{{- if .Values.teamOwner }}
+app.kubernetes.io/teamowner: {{ .Values.teamOwner }}
+{{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 helm.sh/chart: {{ include "chart.name" . }}
 {{- if .Values.commonLabels }}
@@ -70,6 +75,7 @@ helm.sh/chart: {{ include "chart.name" . }}
 
 {{/* Common annotations for the whole chart */}}
 {{- define "chart.commonAnnotations" }}
+helm.sh/chart: {{ include "chart.name" . }}
 {{- if .Values.commonAnnotations }}
 {{- range $key, $value := .Values.commonAnnotations }}
 {{ $key }}: {{ $value | quote }}
@@ -79,18 +85,8 @@ helm.sh/chart: {{ include "chart.name" . }}
 
 {{/* Deployment labels */}}
 {{- define "chart.deploymentLabels" -}}
-{{- if .Values.deployment.labels }}
-{{- range $key, $value := .Values.deployment.labels }}
-{{ $key }}: {{ $value | quote }}
-{{- end }}
-{{- end }}
 {{- end }}
 
 {{/* Deployment annotations */}}
 {{- define "chart.deploymentAnnotations" -}}
-{{- if .Values.deployment.annotations }}
-{{- range $key, $value := .Values.deployment.annotations }}
-{{ $key }}: {{ $value | quote }}
-{{- end }}
-{{- end }}
 {{- end }}

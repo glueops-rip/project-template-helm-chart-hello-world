@@ -6,7 +6,7 @@ metadata:
   {{- if .Values.PersistentVolumeClaim.name }}
   name: "{{ .Values.PersistentVolumeClaim.name }}"
   {{- else }}
-  name: {{ template "app.name" . }}-pvc
+  name: {{ include "app.name" . }}-pvc
   {{- end }}
   namespace: {{ include "app.namespace" . }}
   labels:

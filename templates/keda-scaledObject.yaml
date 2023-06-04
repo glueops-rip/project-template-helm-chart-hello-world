@@ -3,7 +3,7 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: {{ template "app.name" $ }}
+  name: {{ include "app.name" $ }}
   namespace: {{ include "app.namespace" $ }}
   labels:
     {{- include "chart.commonLabels" $ | indent 4 }}
@@ -28,7 +28,7 @@ spec:
 
   {{- if not (hasKey .Values.keda.scaledObject.spec "scaleTargetRef") }}
   scaleTargetRef:
-    name: {{ template "app.name" $ }}
+    name: {{ include "app.name" $ }}
   {{- end }}
   triggers:
   {{- if .Values.keda.scaledObject.spec.triggers }}

@@ -4,7 +4,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ template "app.name" $ }}-{{.name}}
+  name: {{ include "app.name" $ }}-{{.name}}
   namespace: {{ include "app.namespace" $ }}
   labels:
     {{- include "chart.commonLabels" $ | indent 4 }}

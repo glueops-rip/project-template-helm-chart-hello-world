@@ -2,9 +2,12 @@ podDisruptionBudget:
   enabled: true
 service:
   enabled: true
+  headlessService: true
 serviceAccount:
   create: true
 deployment:
+  enabled: false
+statefulSet:
   enabled: true
   annotations:
     deploy.annotations.example.com/name: deploy
@@ -68,6 +71,7 @@ deployment:
 
   securityContext:
     fsGroup: 2000
+
 
   containerSecurityContext:
     runAsNonRoot: true
@@ -172,35 +176,27 @@ deployment:
     configMapName: mysql-config
     configMapKey: host
 
-  resources:
-    requests:
-      cpu: 50m
-      memory: 100Mi
-    limits:
-      cpu: 100m
-      memory: 200Mi
-
   livenessProbe:
     httpGet:
-      path: /health-no-downstream
+      path: /healthz
       port: 8080
-    initialDelaySeconds: 10
+    failureThreshold: 30
     periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 5
-    successThreshold: 1
 
   readinessProbe:
-    httpGet:
-      path: /health
-      port: http
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    timeoutSeconds: 1
-    failureThreshold: 3
-    successThreshold: 1
+    exec:
+      command:
+      - cat
+      - /tmp/healthy
+    initialDelaySeconds: 5
+    periodSeconds: 5
 
-  startupProbe: {}
+  startupProbe:
+    tcpSocket:
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
 
   # Ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   lifecycle:
@@ -213,6 +209,13 @@ deployment:
   - name: foo
     mountPath: "/etc/foo"
     readOnly: true
+
+  volumeClaimTemplates:
+    www: 
+      accessModes: "ReadWriteOnce"
+      storageClassName: "my-storage-class"
+      requestsStorage: 1Gi
+      mountPath: /usr/share/nginx/html
 
   # list of volumes in original k8s format.
   volumes:

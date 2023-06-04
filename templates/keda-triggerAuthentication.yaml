@@ -5,7 +5,7 @@
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:
-  name: {{ template "app.name" $ }}-{{ $triggerAuthName }}
+  name: {{ include "app.name" $ }}-{{ $triggerAuthName }}
   namespace: {{ include "app.namespace" $ }}
   labels:
     {{- include "chart.commonLabels" $ | indent 4 }}

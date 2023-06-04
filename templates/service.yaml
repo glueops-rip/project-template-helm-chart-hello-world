@@ -3,8 +3,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "app.name" . }}
-  namespace: {{ template "app.namespace" . }}
+  name: {{ include "app.name" . }}
+  namespace: {{ include "app.namespace" . }}
   labels:
     {{- include "chart.commonLabels" . | indent 4 }}
     {{- if .Values.service.labels }}
@@ -28,7 +28,7 @@ spec:
   - name: {{.Values.service.portName | default "http" }}
     protocol: {{.Values.service.protocol | default "TCP" }}
     port: {{.Values.service.port | default (include "app.port" .) }}
-    targetPort: {{ template "app.port" . }}
+    targetPort: {{ include "app.port" . }}
   {{- range .Values.service.ports }}
   - name: {{ .name | default "http" }}
     protocol: {{ .protocol | default "TCP" }}

@@ -1,0 +1,31 @@
+{{- if .Values.statefulSet.enabled }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "app.name" . }}
+  namespace: {{ include "app.namespace" . }}
+  labels:
+    {{- include "chart.commonLabels" . | indent 4 }}
+  annotations:
+    {{- include "chart.commonAnnotations" . | indent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "chart.appLabels" . | indent 6 }}
+      {{- if .Values.statefulSet.matchLabels }}
+      {{- toYaml .Values.statefulSet.matchLabels | nindent 6 }}
+      {{- end }}
+  serviceName: {{ include "app.name" . }}
+  replicas: {{ int (.Values.statefulSet.replicas | default 1) }}
+  {{- if .Values.statefulSet.strategy }}
+  strategy:
+    {{- $strategy := .Values.statefulSet.strategy |  default "RollingUpdate" }}
+    type: {{ $strategy }}
+  {{- end }}
+
+  {{- $context :=  merge .Values.statefulSet (dict "resourceType" "statefulSet" "Chart" $.Chart "Root" $) }}
+  template: 
+  {{- include "chart.podTemplate" $context | nindent 4 }}
+
+{{- end }}

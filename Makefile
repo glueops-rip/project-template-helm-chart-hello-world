@@ -13,5 +13,5 @@ unittest:
 test:
 	cd examples && bash test.sh
 
-bump-chart:
-	sed -i "s/^version:.*/version: $(VERSION)/" Chart.yaml
+bump-chart-version:
+	yq -i '.version = "$(VERSION)"' Chart.yaml

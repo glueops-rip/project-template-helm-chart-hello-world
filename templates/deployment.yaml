@@ -1,10 +1,10 @@
-{{- if .Values.deployment.enabled }}
+{{- if and .Values.deployment.enabled (not .Values.statefulSet.enabled) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "app.name" . }}
-  namespace: {{ template "app.namespace" . }}
+  name: {{ include "app.name" . }}
+  namespace: {{ include "app.namespace" . }}
   labels:
     {{- include "chart.commonLabels" . | indent 4 }}
     {{- include "chart.deploymentLabels" . | indent 4 }}
@@ -44,7 +44,7 @@ spec:
       {{- end }}
     {{- end }}
 
-  {{- $context := set (set (merge .Values.deployment (dict "resourceType" "deployment")) "Chart" $.Chart) "Root" $ }}
+  {{- $context :=  merge (dict "resourceType" "deployment" "Chart" $.Chart "Root" $) .Values.deployment }}
   template: 
   {{- include "chart.podTemplate" $context | nindent 4 }}
 

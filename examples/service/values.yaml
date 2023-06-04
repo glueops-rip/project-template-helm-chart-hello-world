@@ -2,6 +2,7 @@ podDisruptionBudget:
   enabled: true
 deployment:
   enabled: true
+  replicas: 4
   maxUnavailable: 25%
   resources:
     requests:
@@ -33,4 +34,3 @@ service:
     - port: 1234
       name: metrics
       protocol: TCP
-      targetPort: 8080

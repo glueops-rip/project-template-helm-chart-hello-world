@@ -1,69 +1,53 @@
-{{- define "chart.podTemplate" }}
+{{- define "chart.podTemplate" -}}
 metadata:
   labels:
     {{- include "chart.commonLabels" .Root | indent 4 }}
-    {{- if eq .resourceType "deployment" }}
     {{- include "chart.deploymentLabels" .Root | indent 4 }}
     {{- if .matchLabels }}
     {{- toYaml .matchLabels | nindent 4 }}
     {{- end }}
-    {{- else if eq .resourceType "cronJob" }}
+    {{- if eq .resourceType "cronJob" }}
     resource-type: "cronjob"
     cronjob: {{ include "app.name" .Root }}-{{.name}}
-    {{- if .Root.Values.cronJob.labels }}
-    {{- range $key, $value := .Root.Values.cronJob.labels }}
-    {{$key}}: {{$value | quote}}
-    {{- end }}
-    {{- end }}
     {{- else if eq .resourceType "job" }}
     resource-type: "job"
+    {{- end }}
     {{- if .suffixName }}
     job: {{ include "app.name" .Root }}-{{.suffixName}}
     {{- else}}
     job: {{ include "app.name" .Root }}-{{.name}}-{{ now | date "200601021504" }}
     {{- end }}
-    {{- if .Root.Values.job.labels }}
-    {{- range $key, $value := .Root.Values.job.labels }}
-    {{$key}}: {{$value | quote}}
-    {{- end }}
-    {{- end }}
-    {{- end }}
+    {{- if .labels }}
     {{- range $key, $value := .labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
+    {{- end }}
   annotations:
     {{- include "chart.commonAnnotations" .Root | indent 4 }}
-    {{- if eq .resourceType "deployment" }}
     {{- include "chart.deploymentAnnotations" .Root | indent 4 }}
-    {{- else if eq .resourceType "cronJob" }}
-    {{- if .Root.Values.cronJob.annotations }}
-    {{- range $key, $value := .Root.Values.cronJob.annotations }}
-    {{$key}}: {{$value | quote}}
-    {{- end }}
-    {{- end }}
-    {{- else if eq .resourceType "job" }}
-    {{- if .Root.Values.job.labels }}
-    {{- range $key, $value := .Root.Values.job.labels }}
-    {{$key}}: {{$value | quote}}
-    {{- end }}
-    {{- end }}
-    {{- end }}
+    {{- if .annotations }}
     {{- range $key, $value := .annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
+    {{- end }}
 spec:
-  terminationGracePeriodSeconds: {{ .terminationPeriod | default "60" }}
+  terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds | default "60" }}
+  {{- if .hostNetwork }}
   hostNetwork: {{ .hostNetwork | default false }} 
+  {{- end }}
   {{- if .hostAliases }}
   hostAliases:      
   {{- toYaml .hostAliases | nindent 4 }}
   {{- end }}
   {{- if .serviceAccount.enabled }}
-  {{- if eq .resourceType "deployment" }}
+  {{- if or (eq .resourceType "deployment") (eq .resourceType "statefulSet") }}
   serviceAccountName: {{ include "chart.serviceAccountName" .Root }}
-  {{- else if or (eq .resourceType "cronJob") (eq .resourceType "job") }}
+  {{- else if hasKey .serviceAccount "name" }}
   serviceAccountName: {{ .serviceAccount.name | default .Root.Values.serviceAccount.name | default (include "app.name" .Root) }}
   {{- end }}
+  {{- end }}
+  {{- if hasKey .serviceAccount "automountServiceAccountToken" }}
+  automountServiceAccountToken: {{ .serviceAccount.automountServiceAccountToken }}
   {{- end }}
   {{- if .nodeSelector }}
   nodeSelector:
@@ -79,7 +63,7 @@ spec:
   {{- end }}
   {{- if .topologySpreadConstraints }}
   topologySpreadConstraints:
-  {{- tpl (toYaml .topologySpreadConstraints) .Root | nindent 4 }}
+    {{- tpl (toYaml .topologySpreadConstraints) .Root | nindent 4 }}
   {{- else }}
   topologySpreadConstraints:
     - labelSelector:
@@ -88,7 +72,7 @@ spec:
           {{- if .matchLabels }}
           {{- toYaml .matchLabels | nindent 10 }}
           {{- end }}
-      maxSkew: 1
+      maxSkew: {{ .topologySpreadConstraintsMaxSkew | default 1 }}
       topologyKey: topology.kubernetes.io/zone
       whenUnsatisfiable: ScheduleAnyway
   {{- end }}
@@ -100,12 +84,11 @@ spec:
   securityContext:
   {{- toYaml .securityContext | nindent 4 }}
   {{- end }}
-
   {{- if .dnsPolicy }}
   dnsPolicy: {{ .dnsPolicy }}
   {{- end }}
   {{- if .dnsConfig }}
-  dnsConfig:      
+  dnsConfig:
   {{- toYaml .dnsConfig | nindent 4 }}
   {{- end }}
   {{- if .shareProcessNamespace }}
@@ -114,8 +97,10 @@ spec:
   {{- if .priorityClassName }}
   priorityClassName: {{ .priorityClassName }}
   {{- end }}
-  {{- if eq .resourceType "deployment" }}
+  {{- if or (eq .resourceType "deployment") (eq .resourceType "statefulSet") }}
+  {{- if .restartPolicy }}
   restartPolicy: {{ .restartPolicy | default "Always" }}
+  {{- end }}
   {{- else if eq .resourceType "cronJob" }}
   restartPolicy: {{ .restartPolicy | default "OnFailure" }}
   {{- else if eq .resourceType "job" }}
@@ -123,27 +108,28 @@ spec:
   {{- end }}
   # volumes
   volumes:
-  {{- if eq .Root.Values.PersistentVolumeClaim.mountPVC true }}
-  - name: {{ template "app.name" .Root }}-pvc
+  {{- if and (ne .resourceType "statefulSet") (eq .Root.Values.PersistentVolumeClaim.mountPVC true) }}
+  - name: {{ include "app.name" .Root }}-pvc
     persistentVolumeClaim:
       {{- if .Root.Values.PersistentVolumeClaim.name }}
       claimName: {{ .Root.Values.PersistentVolumeClaim.name }}
       {{- else }}
-      claimName: {{ template "app.name" .Root }}-pvc
+      claimName: {{ include "app.name" .Root }}-pvc
       {{- end }}
   {{- end }}
   {{- if .volumes }}
-  # volumes variables
   {{- with .volumes }}
   {{- tpl (toYaml .) $.Root | nindent 2 }}
   {{- end }}
   {{- end }}
+  {{- if .initContainers }}
   {{- with .initContainers }}
   initContainers:
   {{- toYaml . | nindent 2 }}
   {{- end }}
+  {{- end }}
   containers:
-  - name: {{ template "app.name" .Root }}
+  - name: {{ include "app.name" .Root }}
     imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
     {{- if .image }}
     image: {{.image}}
@@ -181,7 +167,7 @@ spec:
     {{- end }}
     ports:
     - name: {{.portName | default "http" }}
-      containerPort: {{ template "app.port" .Root }}
+      containerPort: {{ include "app.port" .Root }}
       {{- if .Root.Values.image.protocol }}
       protocol: {{.Root.Values.image.protocol}}
       {{- else if .protocol }}
@@ -197,7 +183,7 @@ spec:
     env:
     # default variables
     - name: ENV_APP_NAME
-      value: {{ template "app.name" .Root }}
+      value: {{ include "app.name" .Root }}
     - name: ENV_APP_VERSION
       value: {{ include "app.version" .Root | quote }}
     - name: ENV_APP_ENV
@@ -220,11 +206,14 @@ spec:
       valueFrom:
         fieldRef:
           fieldPath: status.podIP
+    {{- if .envVariables }}
     # envVariables
     {{- range .envVariables }}
     - name: {{ .name }}
       value: {{ .value | quote }}
     {{- end }}
+    {{- end }}
+    {{- if .envSecrets }}
     # secret variables
     {{- range .envSecrets }}
     - name: {{.variable}}
@@ -233,6 +222,8 @@ spec:
           name: {{.secretName}}
           key: {{.secretKey}}
     {{- end }}
+    {{- end }}
+    {{- if .envConfigMaps }}
     # configMap variables
     {{- range .envConfigMaps }}
     - name: {{.variable}}
@@ -241,48 +232,59 @@ spec:
           name: {{.configMapName}}
           key: {{.configMapKey}}
     {{- end }}
+    {{- end }}
+    {{- if .envMap }}
     # envMap
     {{- range $envKey, $envValue := .envMap }}
     - name: {{ $envKey }}
       {{- toYaml $envValue | nindent 6 }}
     {{- end }}
-    # resources
+    {{- end }}
     {{- if .resources }}
+    # resources
     resources: {{ toYaml .resources | nindent 6 }}
     {{- end }}
-    # startupProbe
     {{- if .startupProbe }}
+    # startupProbe
     startupProbe:
       {{- toYaml .startupProbe | nindent 6 }}
     {{- end }}
-    # livenessProbe
     {{- if .livenessProbe }}
+    # livenessProbe
     livenessProbe:
       {{- toYaml .livenessProbe | nindent 6 }}
     {{- end }}
-
-    # readinessProbe
     {{- if .readinessProbe }}
+    # readinessProbe
     readinessProbe:
       {{- toYaml .readinessProbe | nindent 6 }}
     {{- end }}
-    # volumeMounts
-    {{- if or (.volumeMounts) (and (eq .Root.Values.PersistentVolumeClaim.enabled true) (eq .Root.Values.PersistentVolumeClaim.mountPVC true) )}} 
-    volumeMounts:
-    {{- if eq .Root.Values.PersistentVolumeClaim.mountPVC true }}
-    - mountPath: {{ .Root.Values.PersistentVolumeClaim.mountPath }}
-      name: {{ template "app.name" .Root }}-pvc
+    {{- if .containerSecurityContext }}
+    # securityContext
+    securityContext:
+    {{- toYaml .containerSecurityContext | nindent 6 }}
     {{- end }}
+    # volumeMounts
+    volumeMounts:
+    {{- if eq .resourceType "statefulSet" }}
+    {{- if .volumeClaimTemplates }}
+    {{- range $key, $value := .volumeClaimTemplates }}
+    - name: {{$key}}
+      mountPath: {{$value.mountPath}}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if eq .Root.Values.PersistentVolumeClaim.mountPVC true }}
+    - name: {{ include "app.name" .Root }}-pvc
+      mountPath: {{ .Root.Values.PersistentVolumeClaim.mountPath }}
+    {{- end }}
+    {{- if .volumeMounts }}
     {{- with .volumeMounts }}
     {{- tpl (toYaml .) $.Root | nindent 4 }}
     {{- end }}
     {{- end }}
-
-  # sidecar
   {{- if .sidecar }}
+  # sidecar
   {{- toYaml .sidecar | nindent 2 }}
   {{- end }}
-
 {{ end -}}
-
-

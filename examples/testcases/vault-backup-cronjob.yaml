@@ -1,0 +1,67 @@
+appName: "vault-backup-cronjob"
+
+serviceAccount:
+  create: true
+  name: vault-backup
+
+cronJob:
+  enabled: true
+  jobs:
+    vault-backup-cronjob:
+      schedule: "0 */6 * * *"
+      concurrencyPolicy: Forbid
+      successfulJobsHistoryLimit: 10
+      failedJobsHistoryLimit: 3
+      image: amazon/aws-cli:2.11.20
+      command:
+        - /bin/sh
+      args:
+        - -ec
+        # Copy the snapshot file to an S3 bucket called hashicorp-vault-backups
+        - aws s3 cp /share/vault_$(date '+%Y-%m-%d').snap s3://glueops-tenant-nil-primary/nil/hashicorp-vault-backups/$(date '+%Y-%m-%d')/vault_$(date +"%Y%m%d_%H%M%S").snap;
+      envVariables:
+      - name: AW5_ACCE55_KEY_1D
+        value: "nil"
+      - name: AW5_SECR3T_ACCE55_K3Y
+        value: "nil"
+      - name: AWS_DEFAULT_REGION
+        value: "nil"
+      resources:
+        requests:
+          cpu: 1m
+          memory: 16Mi
+        limits:
+          cpu: 10m
+          memory: 32Mi
+      volumeMounts:
+        - mountPath: /share
+          name: share
+      volumes:
+        - name: share
+          emptyDir: {}
+      initContainers:
+        - name: vault-backup
+          image: vault:1.13.2
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);
+              export VAULT_LOG_LEVEL=debug
+              export VAULT_SKIP_VERIFY=true
+              export VAULT_TOKEN=$(vault write -field=token auth/kubernetes/login jwt=$SA_TOKEN role=vault-backup-role);
+              date=$(date '+%Y-%m-%d')
+              mkdir -p /share/${date}
+              vault operator raft snapshot save /share/vault_${date}.snap;
+          env:
+            - name: VAULT_ADDR
+              value: https://vault-active.glueops-core-vault.svc.cluster.local:8200
+          volumeMounts:
+            - mountPath: /share
+              name: share
+          resources:
+            requests:
+              cpu: 1m
+              memory: 16Mi
+            limits:
+              cpu: 10m
+              memory: 32Mi

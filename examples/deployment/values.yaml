@@ -200,7 +200,12 @@ deployment:
     failureThreshold: 3
     successThreshold: 1
 
-  startupProbe: {}
+  startupProbe:
+    tcpSocket:
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
 
   # Ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   lifecycle:

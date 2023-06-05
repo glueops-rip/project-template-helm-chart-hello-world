@@ -6,6 +6,7 @@ templates:
 tests:
   - it: does not yield PDB if disabled
     set:
+      podDisruptionBudget.enabled: false
     asserts:
       - hasDocuments:
           count: 0
@@ -65,7 +66,7 @@ tests:
     set:
       podDisruptionBudget:
         enabled: true
-        minAvailable: null
+        minAvailable:
         maxUnavailable: 1
     asserts:
       - equal:

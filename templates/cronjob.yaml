@@ -33,10 +33,10 @@ spec:
   startingDeadlineSeconds: {{ int $job.startingDeadlineSeconds | default 30 }}
   {{- if $job.successfulJobsHistoryLimit }}
   successfulJobsHistoryLimit: {{ int $job.successfulJobsHistoryLimit }}
-  {{ end }}
+  {{- end }}
   {{- if $job.failedJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ int $job.failedJobsHistoryLimit }}
-  {{ end }}
+  {{- end }}
   jobTemplate:
     spec:
       {{- $context :=  merge (dict "resourceType" "cronJob" "name" $name "Chart" $.Chart "Root" $) $job }}

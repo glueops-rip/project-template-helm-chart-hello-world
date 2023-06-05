@@ -14,6 +14,9 @@ service:
 podDisruptionBudget:
   enabled: true
 
+deployment:
+  enabled: false
+
 statefulSet:
   enabled: true
   replicas: 2

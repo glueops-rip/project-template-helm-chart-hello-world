@@ -11,7 +11,12 @@ tests:
 
   - it: should be enabled when cronJob.enabled is true
     set:
-      cronJob.enabled: true
+      cronJob:
+        enabled: true
+        jobs:
+          testjob1:
+            schedule: "* * * 8 *"
+            image: nginx
     asserts:
       - hasDocuments:
           count: 1
@@ -21,7 +26,9 @@ tests:
           of: batch/v1
       - matchRegex:
           path: metadata.name
-          pattern: '-cronjob$'
+          pattern: '-testjob1$'
+      - isNull:
+          path: spec.jobTemplate.spec.template.spec.tolerations
 
   - it: should apply tolerations when specified
     set:
@@ -47,10 +54,3 @@ tests:
       - equal:
           path: spec.jobTemplate.spec.template.spec.tolerations[0].value
           value: "true"
-
-  - it: should not apply tolerations when not specified
-    set:
-      cronJob.enabled: true
-    asserts:
-      - isNull:
-          path: spec.jobTemplate.spec.template.spec.tolerations

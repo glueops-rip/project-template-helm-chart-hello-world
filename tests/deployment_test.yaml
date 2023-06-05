@@ -35,7 +35,7 @@ tests:
       appName: unittest
       image:
         repository: nginx
-        tag: v1.1.2
+        tag: 1.1.2
         port: 9999
       deployment:
         enabled: true
@@ -49,7 +49,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[?(@.name == "unittest")].image
-          value: docker.io/nginx:v1.1.2
+          value: docker.io/nginx:1.1.2
       - notEqual:
           path: spec.template.spec.containers[?(@.name == "unittest")].image
           value: nginx:latest
@@ -301,8 +301,9 @@ tests:
   # Test case for optional envSecrets
   - it: should set envSecrets if provided
     set:
-      deployment.enabled: true
-      deployment.envSecrets:
+      deployment:
+        enabled: true
+        envSecrets:
         - variable: MYSQL_PASSWORD
           secretName: databases-secrets
           secretKey: mysql-password

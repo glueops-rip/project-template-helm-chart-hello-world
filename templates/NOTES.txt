@@ -1,6 +1,6 @@
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
-{{- range $endpoint := .Values.ingress.endpoints }}
+{{- range $endpoint := .Values.ingress.entries }}
   {{- range .paths }}
   {{- if or (eq $endpoint.domainType "internal") (eq $.Values.ingress.domainType "internal") }}
   https://{{ $endpoint.name }}.{{$.Values.ingress.internal_domain}}{{ .path }}

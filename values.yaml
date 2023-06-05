@@ -1,6 +1,6 @@
 # Global variables
 appName: "example-app"
-appVersion: "0.1.0"
+appVersion: "0.0.1"
 appEnv: "dev"
 # k8s namespace name
 namespaceOverride:
@@ -514,60 +514,60 @@ cronJob:
   enabled: false
   
   jobs:
-    cronjob:
-      labels: {}
-      annotations: {}
-      startingDeadlineSeconds: 60
-      serviceAccount:
-        enabled: false
-      # schedule: "* * * 8 *"
-      envMap: {}
-        # foo:
-        #   value: bar
-        # foo1:
-        #   valueFrom:
-        #     configMapKeyRef:
-        #       name: configmap-name
-        #       key: configMapKey
-        # foo2:
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: secret-name
-        #       key: secretKey
-      # image: docker.io/nginx:v1.2.3
-      # imagePullPolicy: IfNotPresent
-      # command: ["/bin/bash"]
-      # args: ["-c","sleep 5000"]
-      resources:  {}
-        # requests:
-        #   memory: 5Gi
-        #   cpu: 1
-      affinity:
-        # nodeAffinity:
-        #   requiredDuringSchedulingIgnoredDuringExecution:
-        #     nodeSelectorTerms:
-        #     - matchExpressions: 
-        #       - key: k8s-node-role/job-worker
-        #         operator: In
-        #         values:
-        #         - "true"
-        #       - key: dedicated
-        #         operator: In
-        #         values:
-        #         - "general-purpose"
-        #   preferredDuringSchedulingIgnoredDuringExecution:
-        #   - preference:
-        #       matchExpressions:
-        #       - key: k8s-node-role/spot-worker
-        #         operator: In
-        #         values:
-        #         - "true"
-        #     weight: 100
-      tolerations:
-      # - effect: NoSchedule
-      #   key: k8s-node-role/job-worker
-      #   operator: Equal
-      #   value: "true"
+    # cronjob:
+    #   labels: {}
+    #   annotations: {}
+    #   startingDeadlineSeconds: 60
+    #   serviceAccount:
+    #     enabled: false
+    #   # schedule: "* * * 8 *"
+    #   envMap: {}
+    #     # foo:
+    #     #   value: bar
+    #     # foo1:
+    #     #   valueFrom:
+    #     #     configMapKeyRef:
+    #     #       name: configmap-name
+    #     #       key: configMapKey
+    #     # foo2:
+    #     #   valueFrom:
+    #     #     secretKeyRef:
+    #     #       name: secret-name
+    #     #       key: secretKey
+    #   # image: docker.io/nginx:v1.2.3
+    #   # imagePullPolicy: IfNotPresent
+    #   # command: ["/bin/bash"]
+    #   # args: ["-c","sleep 5000"]
+    #   resources:  {}
+    #     # requests:
+    #     #   memory: 5Gi
+    #     #   cpu: 1
+    #   affinity:
+    #     # nodeAffinity:
+    #     #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     #     nodeSelectorTerms:
+    #     #     - matchExpressions: 
+    #     #       - key: k8s-node-role/job-worker
+    #     #         operator: In
+    #     #         values:
+    #     #         - "true"
+    #     #       - key: dedicated
+    #     #         operator: In
+    #     #         values:
+    #     #         - "general-purpose"
+    #     #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     #   - preference:
+    #     #       matchExpressions:
+    #     #       - key: k8s-node-role/spot-worker
+    #     #         operator: In
+    #     #         values:
+    #     #         - "true"
+    #     #     weight: 100
+    #   tolerations:
+    #   # - effect: NoSchedule
+    #   #   key: k8s-node-role/job-worker
+    #   #   operator: Equal
+    #   #   value: "true"
 
 
 ##########################################################

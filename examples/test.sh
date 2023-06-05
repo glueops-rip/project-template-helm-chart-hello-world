@@ -6,7 +6,8 @@ if [[ ${DEBUG} -eq "1" ]]; then
   set -o xtrace
 fi
 
-IGNORE_TESTS_KUBE_SCORE=(--ignore-test=container-image-pull-policy --ignore-test=container-security-context-readonlyrootfilesystem --ignore-test=container-security-context-user-group-id --ignore-test=pod-networkpolicy --ignore-test=container-ephemeral-storage-request-and-limit --ignore-test=ingress-targets-service)
+IGNORE_TESTS_KUBE_SCORE=(--ignore-test=container-image-pull-policy --ignore-test=container-security-context-readonlyrootfilesystem --ignore-test=container-security-context-user-group-id --ignore-test=pod-networkpolicy --ignore-test=ingress-targets-service --ignore-test=container-ephemeral-storage-request-and-limit)
+# --ignore-test=pod-probes
 
 export KUBE_VER=1.27
 export KUBE_VER_FULL=`echo $KUBE_VER`.2
@@ -42,6 +43,7 @@ for d in */ ; do
     helm delete example-app
   elif [[ $d != "keda/" ]]; then
     echo "[INFO] kubectl dry-run on directory: $(pwd)" 
+	# The object will be validated by the apiserver
     helm template ../../ -f ../../values.yaml -f values.yaml |  kubectl apply --dry-run='server' -f - 
   fi
   cd ..
@@ -75,3 +77,5 @@ if [[ -d "testcases/" ]]; then
 else
   echo "[INFO] Skipping testcases ..."
 fi
+
+echo "[INFO] Done..."

@@ -4,6 +4,7 @@ templates:
 tests:
   - it: should use the correct image
     set:
+      deployment.enabled: false
       statefulSet.enabled: true
       image.registry: docker.io
       image.repository: nginx
@@ -22,6 +23,7 @@ tests:
     set:
       image.port: 9999
       statefulSet.enabled: true
+      deployment.enabled: false
     asserts:
       - hasDocuments:
           count: 1
@@ -38,6 +40,7 @@ tests:
       commonAnnotations:
         anno: test
       statefulSet.enabled: true
+      deployment.enabled: false
     asserts:
       - hasDocuments:
           count: 1
@@ -51,6 +54,7 @@ tests:
       commonLabels:
         lbl: test
       statefulSet.enabled: true
+      deployment.enabled: false
     asserts:
       - hasDocuments:
           count: 1

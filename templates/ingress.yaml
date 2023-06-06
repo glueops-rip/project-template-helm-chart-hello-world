@@ -51,7 +51,7 @@ spec:
               {{- if .servicePortName }}
               name: {{.servicePortName | default "http" }}
               {{- else }}
-              number: {{ int (.servicePortNumber | default (include "app.port" $)) }}
+              number: {{ int ( $.Values.service.port | default .servicePortNumber | default (include "app.port" $)) }}
               {{- end }}
       {{- end }}
       {{- else }}
@@ -61,7 +61,7 @@ spec:
           service:
             name: {{ include "app.name" $}}
             port: 
-              number: {{ int (include "app.port" $) }}
+              number: {{ int ( $.Values.service.port | default (include "app.port" $)) }}
       {{- end }}
   {{- end }}
   {{- end }}

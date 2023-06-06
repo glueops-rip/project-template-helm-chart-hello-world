@@ -1,11 +1,10 @@
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
 {{- range $endpoint := .Values.ingress.entries }}
+  {{- $servicePortNumber := .servicePortNumber }}
+  {{- range .hosts }}
   {{- range .paths }}
-  {{- if or (eq $endpoint.domainType "internal") (eq $.Values.ingress.domainType "internal") }}
-  https://{{ $endpoint.name }}.{{$.Values.ingress.internal_domain}}{{ .path }}
-  {{- else }}
-  https://{{ $endpoint.name }}.{{$.Values.ingress.external_domain}}{{ .path }}
+  https://{{ $endpoint.name }}.{{.hostname}}{{ .path }}:{{ int ( $.Values.service.port | default $servicePortNumber | default (include "app.port" $)) }}
   {{- end }}
   {{- end }}
 {{- end }}

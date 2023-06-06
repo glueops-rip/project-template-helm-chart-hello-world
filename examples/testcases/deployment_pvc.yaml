@@ -24,7 +24,11 @@ podDisruptionBudget:
 
 deployment:
   enabled: true
+  replicas: 2
   strategy: Recreate
+  envVariables:
+  - name: MYSQL_DATABASE
+    value: "test"
   envSecrets:
   - variable: MYSQL_ROOT_PASSWORD
     secretName: mysql-password

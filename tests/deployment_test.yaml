@@ -23,9 +23,9 @@ tests:
       deployment:
         enabled: true
     asserts:
-      - exists:
+      - matchRegex:
           path: spec.template.spec.containers[0].image
-          value: example-image:example-tag
+          pattern: 'example-image:example-tag$'
       - equal:
           path: metadata.labels["app.kubernetes.io/version"]
           value: 1.2.3
@@ -53,14 +53,12 @@ tests:
       - notEqual:
           path: spec.template.spec.containers[?(@.name == "unittest")].image
           value: nginx:latest
-      - exists:
-          path: spec.template.spec.containers[?(@.name == "unittest")].ports
-          content:
-            containerPort: 9999
-      - notContains:
-          path: spec.template.spec.containers[?(@.name == "unittest")].ports
-          content:
-            containerPort: 8080
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "unittest")].ports[0].containerPort
+          value: 9999
+      - notEqual:
+          path: spec.template.spec.containers[?(@.name == "unittest")].ports[0].containerPort
+          value: 8080
       - notExists:
           path: spec.template.nodeSelector
       - notExists:
@@ -291,11 +289,11 @@ tests:
       - equal:
           path: spec.template.spec.hostAliases[0].ip
           value: "127.0.0.1"
-      - exists:
-          path: spec.template.spec.hostAliases[0].hostnames
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[0]
           value: "foo.local"
-      - exists:
-          path: spec.template.spec.hostAliases[0].hostnames
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[1]
           value: "bar.local"
 
   # Test case for optional envSecrets

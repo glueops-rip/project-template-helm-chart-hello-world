@@ -193,7 +193,7 @@ deployment:
   # livenessProbe: {}
   livenessProbe:
     # httpGet:
-    #   path: /health
+    #   path: /healthz
     # initialDelaySeconds: 10
     # periodSeconds: 10
     # timeoutSeconds: 5
@@ -203,7 +203,7 @@ deployment:
   # readinessProbe: {}
   readinessProbe:
     # httpGet:
-    #   path: /health
+    #   path: /readyz
     # initialDelaySeconds: 10
     # periodSeconds: 10
     # timeoutSeconds: 1
@@ -424,7 +424,7 @@ statefulSet:
   # livenessProbe: {}
   livenessProbe:
     # httpGet:
-    #   path: /health
+    #   path: /healthz
     # initialDelaySeconds: 10
     # periodSeconds: 10
     # timeoutSeconds: 5
@@ -434,7 +434,7 @@ statefulSet:
   # readinessProbe: {}
   readinessProbe:
     # httpGet:
-    #   path: /health
+    #   path: /readyz
     # initialDelaySeconds: 10
     # periodSeconds: 10
     # timeoutSeconds: 1
@@ -653,6 +653,7 @@ service:
   annotations:
   # service.annotations.example.com/foo: bar
   type: ClusterIP
+  # port: 80 # service will listen on the same port as container if not set
   # service will listen on this port
   ports:
     # - port: 8080

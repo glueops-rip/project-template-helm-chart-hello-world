@@ -72,7 +72,6 @@ statefulSet:
   securityContext:
     fsGroup: 2000
 
-
   containerSecurityContext:
     runAsNonRoot: true
     runAsUser: 1000

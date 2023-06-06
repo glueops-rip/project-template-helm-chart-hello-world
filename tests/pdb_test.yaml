@@ -11,6 +11,13 @@ tests:
       - hasDocuments:
           count: 0
 
+  - it: yield PDB if true
+    set:
+      podDisruptionBudget.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+
   - it: does not yield PDB if minAvailable and maxUnavailable are inexistent
     set:
       podDisruptionBudget:

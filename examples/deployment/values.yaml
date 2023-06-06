@@ -182,7 +182,7 @@ deployment:
 
   livenessProbe:
     httpGet:
-      path: /health-no-downstream
+      path: /healthz
       port: 8080
     initialDelaySeconds: 10
     periodSeconds: 10
@@ -192,7 +192,7 @@ deployment:
 
   readinessProbe:
     httpGet:
-      path: /health
+      path: /readyz
       port: http
     initialDelaySeconds: 10
     periodSeconds: 10

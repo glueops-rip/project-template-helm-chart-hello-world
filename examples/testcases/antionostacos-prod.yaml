@@ -13,7 +13,7 @@ deployment:
   imagePullPolicy: Always
   envVariables:
   - name: GLUEOPS_PREVIEW_DOMAIN
-    value: antionostacos-prod.apps.<cluster-environment-name>.<companykey>.glueopshosted.com
+    value: antionostacos-prod.apps.nonprod.antonios.glueopshosted.com
   envFrom:
     - type: secretRef
       name: antionostacos-prod

@@ -361,20 +361,21 @@ tests:
   # Test case for optional envMap
   - it: should set envMap if provided
     set:
-      deployment.enabled: true
-      deployment.envMap: 
-        foo:
-          value: bar
-        foo1:
-          valueFrom:
-            configMapKeyRef:
-              name: configmap-name
-              key: configMapKey
-        foo2:
-          valueFrom:
-            secretKeyRef:
-              name: secret-name
-              key: secretKey
+      deployment:
+        enabled: true
+        envMap: 
+          foo:
+            value: bar
+          foo1:
+            valueFrom:
+              configMapKeyRef:
+                name: configmap-name
+                key: configMapKey
+          foo2:
+            valueFrom:
+              secretKeyRef:
+                name: secret-name
+                key: secretKey
     asserts:
       - hasDocuments:
           count: 1

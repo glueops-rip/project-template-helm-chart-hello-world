@@ -132,7 +132,7 @@ spec:
   {{- end }}
   containers:
   - name: {{ include "app.name" .Root }}
-    imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+    imagePullPolicy: {{ title (.imagePullPolicy | default "IfNotPresent") }}
     {{- if .image }}
     image: {{.image}}
     {{- else }}
@@ -240,6 +240,14 @@ spec:
     {{- range $envKey, $envValue := .envMap }}
     - name: {{ $envKey }}
       {{- toYaml $envValue | nindent 6 }}
+    {{- end }}
+    {{- end }}
+    {{- if .envFrom }}
+    # envFrom
+    envFrom:
+    {{- range .envFrom }}
+    - {{ .type }}:
+        name: {{ .name }}
     {{- end }}
     {{- end }}
     {{- if .resources }}

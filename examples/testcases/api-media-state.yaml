@@ -1,0 +1,69 @@
+appName: api-media-state
+
+
+image:
+  registry: docker.io
+  repository: antonios/mm-media-state-api
+  tag: main
+  port: 3000
+
+service:
+  enabled: true
+
+deployment:
+  enabled: true
+  imagePullPolicy: Always
+  imagePullSecrets: api-media-state-reg-cred
+  envVariables:
+  - name: GLUEOPS_PREVIEW_DOMAIN
+    value: api-media-state.apps.nonprod.antonios.glueopshosted.com
+  envFrom:
+    - type: secretRef
+      name: api-media-state
+  resources:
+    requests:
+      cpu: 300m
+      memory: 32Mi
+    limits:
+      cpu: 330m
+      memory: 35Mi
+
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 8080
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: 8080
+
+podDisruptionBudget:
+  enabled: true
+
+ingress:
+  enabled: true
+  ingressClassName: public
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  tls:
+    - secretName: api-media-state-tls-customer-domain
+      hosts:
+        - api-media-state.apps.nonprod.antonios.glueopshosted.com
+  entries:
+    - name: public
+      hosts:
+      - hostname: api-media-state.apps.nonprod.antonios.glueopshosted.com
+
+externalSecret:
+  enabled: true
+  secrets:   
+    secret1:
+      name: api-media-state
+      dataFrom:
+        key: secret/kv-v2-glueops/apps/media-state-api
+    reg-cred:
+      refreshInterval: "15s"
+      type: kubernetes.io/dockerconfigjson
+      dataFrom:
+        key: secret/kv-v2-glueops/docker-registry
+

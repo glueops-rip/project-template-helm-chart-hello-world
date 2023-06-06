@@ -31,8 +31,8 @@ metadata:
     {{- end }}
     {{- end }}
 spec:
-  {{- if .ingressClassName }}
-  ingressClassName: {{ .ingressClassName }}
+  {{- if  $.Values.ingress.ingressClassName }}
+  ingressClassName: {{  $.Values.ingress.ingressClassName }}
   {{- end }}
   rules:
   {{- if .hosts }}
@@ -56,7 +56,7 @@ spec:
       {{- end }}
       {{- else }}
       - path: "/"
-        pathType: "ImplementationSpecific"
+        pathType: "Prefix"
         backend:
           service:
             name: {{ include "app.name" $}}
@@ -65,9 +65,9 @@ spec:
       {{- end }}
   {{- end }}
   {{- end }}
-  {{- if .tls }}
+  {{- if $.Values.ingress.tls }}
   tls:
-    {{- tpl (toYaml .tls) $ | nindent 4 }}
+    {{- tpl (toYaml $.Values.ingress.tls) $ | nindent 4 }}
   {{- end }}
 {{- end }}
 {{- end }}

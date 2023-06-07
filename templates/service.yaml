@@ -1,4 +1,4 @@
-{{- if .Values.service.enabled -}}
+{{- if or .Values.service.enabled .Values.ingress.enabled -}}
 ---
 apiVersion: v1
 kind: Service
@@ -37,8 +37,10 @@ spec:
   {{- end }}
   selector:
     {{- include "chart.appLabels" . | indent 4 }}
-    {{- if .Values.deployment.matchLabels }}
+    {{- if and .Values.deployment.enabled .Values.deployment.matchLabels }}
     {{- toYaml .Values.deployment.matchLabels | nindent 4 }}
+    {{- else if and .Values.statefulSet.enabled .Values.statefulSet.matchLabels }}
+    {{- toYaml .Values.statefulSet.matchLabels | nindent 4 }}
     {{- end }}
 
 {{- end -}}

@@ -8,7 +8,15 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
-          
+
+  - it: should create a service if ingress is enabled
+    set:
+      ingress.enabled: true
+      service.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+
   - it: default value should pass
     release:
       name: my-release

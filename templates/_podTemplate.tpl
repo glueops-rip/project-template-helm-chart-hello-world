@@ -110,7 +110,7 @@ spec:
   {{- end }}
   # volumes
   volumes:
-  {{- if and (ne .resourceType "statefulSet") (eq .Root.Values.PersistentVolumeClaim.mountPVC true) }}
+  {{- if and (ne .resourceType "statefulSet") .Root.Values.PersistentVolumeClaim.enabled }}
   - name: {{ include "app.name" .Root }}-pvc
     persistentVolumeClaim:
       {{- if .Root.Values.PersistentVolumeClaim.name }}
@@ -284,7 +284,7 @@ spec:
     {{- end }}
     {{- end }}
     {{- end }}
-    {{- if eq .Root.Values.PersistentVolumeClaim.mountPVC true }}
+    {{- if .Root.Values.PersistentVolumeClaim.enabled }}
     - name: {{ include "app.name" .Root }}-pvc
       mountPath: {{ .Root.Values.PersistentVolumeClaim.mountPath }}
     {{- end }}

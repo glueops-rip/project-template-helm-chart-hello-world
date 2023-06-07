@@ -30,10 +30,10 @@ jobs:
 
       - name: Install
         env:
-          KUBE_LINTER_VER: 0.6.3
+          KUBE_LINTER_VER: 0.6.4
           KUBE_SCORE_VER: 1.16.1
-          POLARIS_VER: 7.4.2
-          KUBECONFORM_VER: 0.6.1
+          POLARIS_VER: 8.0.0
+          KUBECONFORM_VER: 0.6.2
         run: |
           sudo apt-get update -yqq
           sudo apt-get install -yqq yamllint wget

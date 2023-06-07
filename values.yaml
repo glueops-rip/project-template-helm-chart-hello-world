@@ -749,7 +749,6 @@ PersistentVolumeClaim:
     # key: "value"
   annotations:
   #  "helm.sh/resource-policy": keep
-  mountPVC: false
   # mountPath: "/mnt/test"
   # name: ""
   # accessMode: ReadWriteOnce

@@ -14,15 +14,15 @@ cronJob:
         - exportloki
       resources:
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 1m
+          memory: 16Mi
         limits:
-          cpu: 120m
-          memory: 154Mi
+          cpu: 10m
+          memory: 32Mi
       envVariables:
-        - name: AWS_ACCESS_KEY_ID
+        - name: AW5_ACCE55_KEY_1D
           value: "nil"
-        - name: AWS_SECRET_ACCESS_KEY
+        - name: AW5_SECR3T_ACCE55_K3Y
           value: "nil"
         - name: AWS_DEFAULT_REGION
           value: "nil"

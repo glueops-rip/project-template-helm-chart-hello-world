@@ -722,7 +722,8 @@ externalSecret:
   secrets:   
     # mongodb:
     #   data:
-    #     mongo-password: 
+    #     mongo-password:
+    #       envName: MONGO_PASSWORD
     #       remoteRef: 
     #         key: monodb
     #         property: password 

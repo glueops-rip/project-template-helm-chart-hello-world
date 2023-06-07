@@ -483,3 +483,83 @@ tests:
             name: init-mydb
             image: busybox:1.28
             command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+
+  - it: should create ExternalSecret variable with envFrom
+    set:
+      deployment:
+        enabled: true
+      externalSecret:
+        enabled: true
+        secrets:
+          name2:
+            dataFrom:
+              key: postgres
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[0].secretRef.name
+          value: example-app-name2
+
+  - it: should create ExternalSecret variable with env
+    set:
+      deployment:
+        enabled: true
+      externalSecret:
+        enabled: true
+        secrets:
+          name1:
+            data:
+              secretKey:
+                envName: NAME_1
+                remoteRef:
+                  key: key1
+                  property: property1
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NAME_1
+            valueFrom:
+              secretKeyRef:
+                name: example-app-name1
+                key: secretKey
+
+  - it: should create ExternalSecret variable with default variable key
+    set:
+      deployment:
+        enabled: true
+      externalSecret:
+        enabled: true
+        secrets:
+          name1:
+            data:
+              secretKey:
+                remoteRef:
+                  key: key1
+                  property: property1
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: secretKey
+            valueFrom:
+              secretKeyRef:
+                name: example-app-name1
+                key: secretKey

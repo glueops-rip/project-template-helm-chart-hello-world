@@ -225,6 +225,20 @@ spec:
           key: {{.secretKey}}
     {{- end }}
     {{- end }}
+    {{- if .Root.Values.externalSecret.enabled  }}
+    {{- range $nameSuffix, $data := .Root.Values.externalSecret.secrets }}
+    {{- if hasKey $data "data" }}
+    # externalSecret
+    {{- range $secretKey, $secretProperty := $data.data}}
+    - name: {{ $secretProperty.envName | default $secretKey }}
+      valueFrom:
+        secretKeyRef:
+          name: {{ $data.name | default (printf "%s-%s" (include "app.name" $.Root) $nameSuffix) }}
+          key: {{ $secretKey }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
     {{- if .envConfigMaps }}
     # configMap variables
     {{- range .envConfigMaps }}
@@ -242,9 +256,16 @@ spec:
       {{- toYaml $envValue | nindent 6 }}
     {{- end }}
     {{- end }}
-    {{- if .envFrom }}
+    {{- if or .envFrom .Root.Values.externalSecret.enabled  }}
     # envFrom
     envFrom:
+    {{- range $nameSuffix, $data := .Root.Values.externalSecret.secrets }}
+    {{- if and (hasKey $data "dataFrom") (hasKey $data.dataFrom "key") }}
+    # externalSecret
+    - secretRef:
+        name: {{ $data.name | default (printf "%s-%s" (include "app.name" $.Root) $nameSuffix) }}
+    {{- end }}
+    {{- end }}
     {{- range .envFrom }}
     - {{ .type }}:
         name: {{ .name }}

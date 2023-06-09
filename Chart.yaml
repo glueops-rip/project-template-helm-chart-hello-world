@@ -1,4 +1,4 @@
 name: app-helm-chart
 apiVersion: v2
 description: A Helm chart template for applications
-version: 0.1.0-alpha1
+version: 0.1.0-alpha2

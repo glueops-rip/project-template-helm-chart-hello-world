@@ -4,7 +4,6 @@
 
 A Helm chart template for applications
 
-
 ## Values
 
 | Key | Type | Default | Description |
@@ -12,7 +11,6 @@ A Helm chart template for applications
 | PersistentVolumeClaim.annotations | string | `nil` |  |
 | PersistentVolumeClaim.enabled | bool | `false` |  |
 | PersistentVolumeClaim.labels | string | `nil` |  |
-| PersistentVolumeClaim.mountPVC | bool | `false` |  |
 | appEnv | string | `"dev"` |  |
 | appName | string | `"example-app"` |  |
 | appVersion | string | `"0.0.1"` |  |

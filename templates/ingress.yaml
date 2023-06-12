@@ -5,7 +5,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
-  ingressClassName: external-ingress-nginx
+  ingressClassName: public
   # hosts:
   #   - host: test-app.gcp.glueops.rocks
   rules:

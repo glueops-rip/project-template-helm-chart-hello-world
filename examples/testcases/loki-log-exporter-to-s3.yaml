@@ -1,0 +1,44 @@
+appName: "loki-log-exporter-to-s3"
+
+cronJob:
+  enabled: true
+  jobs:
+    loki-log-exporter-to-s3:
+      schedule: "0 */6 * * *"
+      concurrencyPolicy: Forbid
+      successfulJobsHistoryLimit: 10
+      failedJobsHistoryLimit: 3
+      image: ghcr.io/glueops/loki-log-exporter-to-s3:v0.0.2
+      command: ["/bin/bash", "-c"]
+      args:
+        - exportloki
+      resources:
+        requests:
+          cpu: 1m
+          memory: 16Mi
+        limits:
+          cpu: 10m
+          memory: 32Mi
+      envVariables:
+        - name: AW5_ACCE55_KEY_1D
+          value: "nil"
+        - name: AW5_SECR3T_ACCE55_K3Y
+          value: "nil"
+        - name: AWS_DEFAULT_REGION
+          value: "nil"
+        - name: CAPTAIN_DOMAIN
+          value: "nil"
+        - name: S3_BUCKET_NAME
+          value: "glueops-tenant-nil-primary"
+        - name: LOKI_ADDR
+          value: "nil"
+
+      volumeMounts:
+        - mountPath: /app
+          name: loki-log-exports
+
+      volumes:
+      - name: loki-log-exports
+        emptyDir:
+          medium: "" # Set to "Memory" for tmpfs (RAM-backed filesystem), or leave empty for node's filesystem
+          sizeLimit: 2G # Set the desired size limit

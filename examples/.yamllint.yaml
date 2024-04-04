@@ -1,0 +1,8 @@
+---
+extends: default
+rules:
+  trailing-spaces: disable
+  indentation: disable
+  comments-indentation: disable
+  line-length:
+    max: 300

@@ -1,0 +1,111 @@
+suite: Service
+templates:
+  - templates/service.yaml
+tests:
+  - it: should not create a service if service is not enabled
+    set:
+      service.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create a service if ingress is enabled
+    set:
+      ingress.enabled: true
+      service.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: default value should pass
+    release:
+      name: my-release
+    set:
+      appName: myapp
+      service:
+        enabled: true
+        type: ClusterIP
+    asserts:
+      - isKind:
+          of: Service
+      - isAPIVersion:
+          of: v1
+      - contains:
+          path: spec.ports
+          content:
+            port: 8080
+            targetPort: 8080
+            protocol: TCP
+            name: http
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: myapp
+      
+  - it: service port should be able to override
+    set:
+      service:
+        enabled: true
+        port: 9999
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 9999
+            targetPort: 8080
+            protocol: TCP
+            name: http
+
+  - it: extra service port should be able to add
+    set:
+      service:
+        enabled: true
+        ports:
+        - name: cool-service
+          port: 1234
+          targetPort: 5678
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 1234
+            targetPort: 5678
+            protocol: TCP
+            name: cool-service
+      - contains:
+          path: spec.ports
+          content:
+            port: 8080
+            targetPort: 8080
+            protocol: TCP
+            name: http
+
+  - it: should create a port if port is defined
+    set:
+      service:
+        enabled: true
+        ports:
+        - port: 8080
+          name: http
+          protocol: TCP
+          targetPort: 8080
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8080
+      - equal:
+          path: spec.ports[0].name
+          value: http
+      - equal:
+          path: spec.ports[0].protocol
+          value: TCP
+

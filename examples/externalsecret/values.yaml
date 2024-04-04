@@ -1,0 +1,27 @@
+externalSecret:
+  enabled: true
+  secretStore:
+    kind: SecretStore # Defaults to ClusterSecretStore if not specified 
+    name: vault-backend
+  refreshInterval: "2s"
+  secrets:   
+    mongodb:
+      refreshInterval: "15s"
+      data:
+        mongo-password: 
+          remoteRef: 
+            key: monodb
+            property: password 
+      secretStore:                       
+        name: secret-store-name-2    # specify if value is other than default secretstore  
+      labels:
+        labels.example.com/name: secret
+    postgres:
+      refreshInterval: "10s"
+      dataFrom:
+        key: postgres
+    reg-cred:
+      refreshInterval: "15s"
+      type: kubernetes.io/dockerconfigjson
+      dataFrom:
+        key: regcrd

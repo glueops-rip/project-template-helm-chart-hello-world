@@ -1,39 +1,73 @@
+{{- if .Values.ingress.enabled -}}
+{{- range .Values.ingress.entries }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include "app.name" $ }}-{{.name}}
+  namespace: {{ include "app.namespace" $ }}
+  labels:
+    {{- include "chart.commonLabels" $ | indent 4 }}
+    {{- if $.Values.ingress.labels }}
+    {{- range $key, $value := $.Values.ingress.labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- if .labels }}
+    {{- range $key, $value := .labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
+    {{- include "chart.commonAnnotations" $ | indent 4 }}
+    {{- if $.Values.ingress.annotations }}
+    {{- range $key, $value := $.Values.ingress.annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- if .annotations }}
+    {{- range $key, $value := .annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
 spec:
-  ingressClassName: public
-  # hosts:
-  #   - host: test-app.gcp.glueops.rocks
+  {{- if  $.Values.ingress.ingressClassName }}
+  ingressClassName: {{  $.Values.ingress.ingressClassName }}
+  {{- end }}
   rules:
-  - host: {{ .Release.Name }}.apps.{{ .Values.captain_domain }}
+  {{- if .hosts }}
+  {{- range .hosts }}
+  - host: {{.hostname}}
     http:
       paths:
-        - backend:
-            service:
-              name: {{ .Release.Name }}
-              port:
-                number: {{ .Values.containerPort }}
-          path: /
-          pathType: Prefix
-{{- if ne .Values.domain "nil" }}
-  - host: {{ .Values.domain }}
-    http:
-      paths:
-        - backend:
-            service:
-              name: {{ .Release.Name }}
-              port:
-                number: {{ .Values.containerPort }}
-          path: /
-          pathType: Prefix
-{{- end}}
-{{- if ne .Values.domain "nil" }}
+      {{- if .paths }}
+      {{- range .paths }}
+      - path: {{ .path | default "/" }}
+        pathType: {{ .pathType | default "ImplementationSpecific" }}
+        backend:
+          service:
+            name: {{ .serviceName | default (include "app.name" $)}}
+            port: 
+              {{- if .servicePortName }}
+              name: {{.servicePortName | default "http" }}
+              {{- else }}
+              number: {{ int ( $.Values.service.port | default .servicePortNumber | default (include "app.port" $)) }}
+              {{- end }}
+      {{- end }}
+      {{- else }}
+      - path: "/"
+        pathType: "Prefix"
+        backend:
+          service:
+            name: {{ include "app.name" $}}
+            port: 
+              number: {{ int ( $.Values.service.port | default (include "app.port" $)) }}
+      {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if $.Values.ingress.tls }}
   tls:
-    - secretName: {{ .Release.Name }}-tls-customer-domain
-      hosts:
-        - {{ .Values.domain }}
-{{- end}}
+    {{- tpl (toYaml $.Values.ingress.tls) $ | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

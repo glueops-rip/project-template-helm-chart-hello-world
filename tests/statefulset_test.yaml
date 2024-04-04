@@ -1,0 +1,65 @@
+suite: StatefulSet
+templates:
+  - templates/statefulset.yaml
+tests:
+  - it: should use the correct image
+    set:
+      deployment.enabled: false
+      statefulSet.enabled: true
+      image.registry: docker.io
+      image.repository: nginx
+      image.tag: 1.0.0
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: StatefulSet
+      - isAPIVersion:
+          of: apps/v1
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: '^docker.io/nginx:1.0.0$'
+  - it: should use the correct port
+    set:
+      image.port: 9999
+      statefulSet.enabled: true
+      deployment.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: StatefulSet
+      - isAPIVersion:
+          of: apps/v1
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 9999
+
+  - it: should include the correct commonAnnotations
+    set:
+      commonAnnotations:
+        anno: test
+      statefulSet.enabled: true
+      deployment.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: StatefulSet
+      - equal:
+          path: metadata.annotations.anno
+          value: test
+  - it: should include the correct commonLabels
+    set:
+      commonLabels:
+        lbl: test
+      statefulSet.enabled: true
+      deployment.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: StatefulSet
+      - equal:
+          path: metadata.labels.lbl
+          value: test

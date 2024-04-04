@@ -1,0 +1,46 @@
+{{ if .Values.cronJob.enabled }}
+{{- range $name, $job := .Values.cronJob.jobs }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "app.name" $ }}-{{$name}}
+  namespace: {{ include "app.namespace" $ }}
+  labels:
+    {{- include "chart.commonLabels" (merge $ (dict  "suffixName" $name)) | indent 4 }}
+    {{- if $.Values.cronJob.labels }}
+    {{- range $key, $value := $.Values.cronJob.labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- range $job.labels }}
+    {{.key}}: {{.value | quote}}
+    {{- end }}
+  annotations:
+    {{- include "chart.commonAnnotations" $ | indent 4 }}
+    {{- if $.Values.cronJob.annotations }}
+    {{- range $key, $value := $.Values.cronJob.annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- range $job.annotations }}
+    {{.key}}: {{.value | quote}}
+    {{- end }}
+spec:
+  suspend: {{ $job.suspend | default false }}
+  schedule: {{ $job.schedule | quote }}
+  concurrencyPolicy: {{ $job.concurrencyPolicy | default "Replace" }}
+  startingDeadlineSeconds: {{ int $job.startingDeadlineSeconds | default 30 }}
+  {{- if $job.successfulJobsHistoryLimit }}
+  successfulJobsHistoryLimit: {{ int $job.successfulJobsHistoryLimit }}
+  {{- end }}
+  {{- if $job.failedJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ int $job.failedJobsHistoryLimit }}
+  {{- end }}
+  jobTemplate:
+    spec:
+      {{- $context :=  merge (dict "resourceType" "cronJob" "name" $name "Chart" $.Chart "Root" $) $job }}
+      template: 
+      {{- include "chart.podTemplate" $context | nindent 8 }}
+{{- end }}
+{{- end }}

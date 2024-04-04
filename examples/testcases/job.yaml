@@ -1,0 +1,37 @@
+appName: "myjob"
+
+job:
+  enabled: true
+  jobs:
+    perl:
+      image: perl:5.34.0
+      command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      backoffLimit: 4
+      envMap:
+        foo:
+          value: bar
+      resources:
+        requests:
+          cpu: 1m
+          memory: 16Mi
+        limits:
+          cpu: 10m
+          memory: 32Mi
+    bash:
+      restartPolicy: Never
+      backoffLimit: 6
+      completions: 12
+      parallelism: 3
+      image: docker.io/library/bash:5
+      command: ["bash"]
+      args:
+        - -c
+        - echo "Hello world!" && sleep 5
+      restartPolicy: Never
+      resources:
+        requests:
+          cpu: 1m
+          memory: 16Mi
+        limits:
+          cpu: 10m
+          memory: 32Mi

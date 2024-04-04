@@ -1,0 +1,59 @@
+suite: Job
+templates:
+  - job.yaml
+tests:
+  - it: should not create a job by default
+    set:
+      job.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create a job when enabled
+    set:
+      job:
+        enabled: true
+        jobs:
+          db-migration:
+            serviceAccount:
+              enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Job
+      - matchRegex:
+          path: metadata.name
+          pattern: "-db-migration$"
+      - notExists:
+          path: spec.template.spec.serviceAccountName
+          value: ""
+
+  - it: should render the job when job.serviceAccount.enabled is set to true
+    set:
+      job:
+        enabled: true
+        jobs:
+          db-migration:
+            serviceAccount:
+              enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: example-app
+
+  - it: should render the job with the correct environment variables
+    set:
+      job:
+        enabled: true
+        jobs:
+          db-migration:
+            envMap:
+              foo:
+                value: bar
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: foo
+            value: "bar"

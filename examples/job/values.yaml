@@ -1,0 +1,56 @@
+job:
+  enabled: true
+  jobs:
+    db-migration:
+      ttlSecondsAfterFinished: 300
+      backoffLimit: 2
+      serviceAccount:
+        enabled: false
+      envMap:
+        foo:
+          value: bar
+        foo1:
+          valueFrom:
+            configMapKeyRef:
+              name: configmap-name
+              key: configMapKey
+        foo2:
+          valueFrom:
+            secretKeyRef:
+              name: secret-name
+              key: secretKey
+
+      resources:
+        requests:
+          cpu: 50m
+          memory: 100Mi
+        limits:
+          cpu: 100m
+          memory: 200Mi
+
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: k8s-node-role/job-worker
+                    operator: In
+                    values:
+                      - "true"
+                  - key: k8s-node-role/on-demand-worker
+                    operator: In
+                    values:
+                      - "true"
+                  - key: dedicated
+                    operator: In
+                    values:
+                      - "general-purpose"
+      tolerations:
+        - effect: NoSchedule
+          key: k8s-node-role/job-worker
+          operator: Equal
+          value: "true"
+        - effect: PreferNoSchedule
+          key: k8s-node-role/on-demand-worker
+          operator: Equal
+          value: "true"

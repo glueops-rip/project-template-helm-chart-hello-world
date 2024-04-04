@@ -1,0 +1,63 @@
+appName: antionostacos-prod
+
+image:
+  registry: docker.io
+  repository: antoniostacos/wordpress
+  tag: v0.0.1
+  port: 80
+
+service:
+  enabled: true
+deployment:
+  enabled: true
+  imagePullPolicy: Always
+  envVariables:
+  - name: GLUEOPS_PREVIEW_DOMAIN
+    value: antionostacos-prod.apps.nonprod.antonios.glueopshosted.com
+  envFrom:
+    - type: secretRef
+      name: antionostacos-prod
+  resources:
+    requests:
+      cpu: 300m
+      memory: 32Mi
+    limits:
+      cpu: 330m
+      memory: 35Mi
+
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 80
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: 80
+
+podDisruptionBudget:
+  enabled: true
+
+
+ingress:
+  enabled: true
+  ingressClassName: public
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  tls:
+    - secretName: antionostacos-prod-tls-customer-domain
+      hosts:
+        - antoniostacos.net
+  entries:
+    - name: public
+      hosts:
+      - hostname: antionostacos-prod.apps.nonprod.antonios.glueopshosted.com
+      - hostname: antoniostacos.net
+
+externalSecret:
+  enabled: true
+  secrets:   
+    secret1:
+      name: antionostacos-prod
+      dataFrom:
+        key: secret/kv-v2-glueops/apps/wordpress/prod
+

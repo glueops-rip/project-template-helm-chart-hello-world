@@ -1,0 +1,36 @@
+podDisruptionBudget:
+  enabled: true
+deployment:
+  enabled: true
+  replicas: 4
+  maxUnavailable: 25%
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
+  livenessProbe:
+    httpGet:
+      path: /livez
+      port: 8080
+  readinessProbe:
+    exec:
+      command:
+      - cat
+      - /tmp/healthy
+  startupProbe:
+    tcpSocket:
+      port: 8080
+service:
+  enabled: true
+  labels:
+    expose: "true"
+  annotations:
+    service.annotations.example.com/foo: bar
+  type: ClusterIP
+  ports:
+    - port: 1234
+      portocol: TCP
+      name: metrics

@@ -1,0 +1,23 @@
+deployment:
+  enabled: true
+  replicas: 2
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
+  livenessProbe:
+    exec:
+      command:
+      - cat
+      - /tmp/healthy
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: 8080
+podDisruptionBudget:
+  enabled: true
+  minAvailable:
+  maxUnavailable: 50%

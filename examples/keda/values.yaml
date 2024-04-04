@@ -1,0 +1,63 @@
+image:
+  port: 80
+podDisruptionBudget:
+  enabled: true
+deployment:
+  image: nginx:1.14.0
+  enabled: true
+  maxUnavailable: 25%
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 80
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 80
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - "example-app"
+          topologyKey: topology.kubernetes.io/zone
+keda:
+  enabled: true
+  scaledObject:
+    enabled: true
+    spec:
+      triggers:
+      - type: cpu
+        metadata:
+          type: Utilization
+          value: "90"
+      - type: memory
+        metadata:
+          type: Utilization
+          value: "80"
+      - type: cron
+        metadata:
+          timezone: Asia/Singapore  ## The acceptable values would be a value from the IANA Time Zone Database. https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+          start: 30 12 * * *  ## Cron expression indicating the start of the cron schedule.
+          end: 45 12 * * *  ## Cron expression indicating the end of the cron schedule.
+          desiredReplicas: "6"  ## Number of replicas to which the resource has to be scaled between the start and end of the cron schedule.
+  triggerAuthentication:
+    kafka:
+      enabled: true
+      spec:
+        secretTargetRef:
+          - parameter: connectionString # Required - Defined by the scale trigger
+            name: my-kubernetes-keda-secret
+            key: my-kubernetes-keda-secret-key-connectionstring

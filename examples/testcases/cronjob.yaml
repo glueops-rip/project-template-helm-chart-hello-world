@@ -1,0 +1,56 @@
+appName: "mycronjob"
+
+configMap:
+  enabled: true
+  configs:
+    configmap1:
+      data: |-
+        API_PORT: "8080"
+        LOG_LEVEL: info
+        .env: |
+          FOO=BAR
+          APP=test
+        example.json: |
+          {
+            "test": "123"
+          }
+
+secret:
+  enabled: true
+  secrets:
+    password:
+      data:
+        mysql_password: mysql_secret_password
+
+cronJob:
+  enabled: true
+  jobs:
+    cronjob:
+      serviceAccount:
+        enabled: false
+      schedule: "* * * * *"
+      envMap:
+        foo:
+          value: bar
+        LOG_LEVEL:
+          valueFrom:
+            configMapKeyRef:
+              name: mycronjob-configmap1
+              key: LOG_LEVEL
+        MYSQL_PASSWORD:
+          valueFrom:
+            secretKeyRef:
+              name: mycronjob-password
+              key: mysql_password
+      image: busybox:1.28
+      command:
+      - /bin/sh
+      - -c
+      - date; echo Hello from the Kubernetes cluster
+      resources:
+        requests:
+          cpu: 1m
+          memory: 16Mi
+        limits:
+          cpu: 10m
+          memory: 32Mi

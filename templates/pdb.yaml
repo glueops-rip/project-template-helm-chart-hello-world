@@ -1,0 +1,28 @@
+{{- if and .Values.podDisruptionBudget.enabled (or .Values.podDisruptionBudget.minAvailable .Values.podDisruptionBudget.maxUnavailable) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "app.name" . }}
+  namespace: {{ include "app.namespace" . }}
+  labels:
+    {{- include "chart.commonLabels" . | indent 4 }}
+  annotations:
+    {{- include "chart.commonAnnotations" . | indent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "chart.appLabels" . | indent 6 }}
+      {{- if .Values.deployment.matchLabels }}
+      {{- toYaml .Values.deployment.matchLabels | nindent 6 }}
+      {{- end }}
+  {{- if .Values.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  {{- else if .Values.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{- else if eq (int .Values.podDisruptionBudget.maxUnavailable) 0 }}
+  maxUnavailable: 0
+  {{- else }}
+  minAvailable: 1
+  {{- end }}
+{{- end }}

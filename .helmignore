@@ -21,3 +21,12 @@
 .idea/
 *.tmproj
 .vscode/
+tests/
+examples/
+.github/
+.helmdocsignore
+temp/
+test/
+*.old
+Makefile
+values-dev.yaml

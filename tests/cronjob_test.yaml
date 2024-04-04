@@ -1,0 +1,56 @@
+suite: CronJob
+templates:
+  - cronjob.yaml
+tests:
+  - it: should be disabled by default
+    set:
+      cronJob.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should be enabled when cronJob.enabled is true
+    set:
+      cronJob:
+        enabled: true
+        jobs:
+          testjob1:
+            schedule: "* * * 8 *"
+            image: nginx
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: CronJob
+      - isAPIVersion:
+          of: batch/v1
+      - matchRegex:
+          path: metadata.name
+          pattern: '-testjob1$'
+      - isNull:
+          path: spec.jobTemplate.spec.template.spec.tolerations
+
+  - it: should apply tolerations when specified
+    set:
+      cronJob:
+        enabled: true
+        jobs:
+          cronjob:
+            tolerations:
+            - effect: NoSchedule
+              key: k8s-node-role/job-worker
+              operator: Equal
+              value: "true"
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.tolerations[0].effect
+          value: NoSchedule
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.tolerations[0].key
+          value: "k8s-node-role/job-worker"
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.tolerations[0].operator
+          value: Equal
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.tolerations[0].value
+          value: "true"

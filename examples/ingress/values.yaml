@@ -1,0 +1,53 @@
+podDisruptionBudget:
+  enabled: true
+deployment:
+  enabled: true
+  replicas: 2
+  maxUnavailable: 25%
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
+  livenessProbe:
+    httpGet:
+      path: /livez
+      port: 8080
+  readinessProbe:
+    exec:
+      command:
+      - cat
+      - /tmp/healthy
+  startupProbe:
+    tcpSocket:
+      port: 8080
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx-ingress
+    ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/force-ssl-redirect: "true"
+  entries:
+    - name: external
+      labels:
+      annotations:
+      # ingressClassName: nginx
+      hosts:
+        - hostname: service1.example.com
+          paths:
+            - path: /*
+              serviceName: ssl-redirect
+              servicePortName: use-annotation
+            - path: /metrics
+              # pathType:
+              # serviceName:
+              # servicePortNumber:
+      # TLS details for this Ingress
+      tls:
+        - hosts:
+            - chart-example.local
+            - '{{ .Chart.Name }}.example.com'
+          # Secrets must be created in the same namespace
+          secretName: chart-example-tls

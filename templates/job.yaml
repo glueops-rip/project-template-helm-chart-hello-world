@@ -1,0 +1,62 @@
+{{ if .Values.job.enabled }}
+{{- range $name, $job := .Values.job.jobs }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "app.name" $ }}-{{$name}}
+  namespace: {{ include "app.namespace" $ }}
+  labels:
+    {{- $newContext := set $ "suffixName" $name }}
+    {{- include "chart.appLabels" $newContext | indent 4 }}
+    {{- if $.Values.job.labels }}
+    {{- range $key, $value := $.Values.job.labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- range $job.labels }}
+    {{ .key }}: {{ .value | quote }}
+    {{- end }}
+  annotations:
+    {{- include "chart.commonAnnotations" $ | indent 4 }}
+    {{- if $.Values.cronJob.annotations }}
+    {{- range $key, $value := $.Values.cronJob.annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+    {{- range $job.annotations }}
+    {{.key}}: {{.value | quote}}
+    {{- end }}
+spec:
+  suspend: {{ $job.suspend | default false }}
+  {{- if $.Values.job.parallelism }}
+  parallelism: {{ $.Values.job.parallelism }}
+  {{- else if $job.parallelism }}
+  parallelism: {{ $job.parallelism }}
+  {{- end }}
+  {{- if $.Values.job.completions }}
+  completions: {{ $.Values.job.completions }}
+  {{- else if $job.completions }}
+  completions: {{ $job.completions }}
+  {{- end }}
+  {{- if $.Values.job.backoffLimit }}
+  backoffLimit: {{ $.Values.job.backoffLimit }}
+  {{- else if $job.backoffLimit }}
+  backoffLimit: {{ $job.backoffLimit }}
+  {{- end }}
+  {{- if $.Values.job.ttlSecondsAfterFinished }}
+  ttlSecondsAfterFinished: {{ $.Values.job.ttlSecondsAfterFinished }}
+  {{- else if $job.ttlSecondsAfterFinished }}
+  ttlSecondsAfterFinished: {{ $job.ttlSecondsAfterFinished }}
+  {{- end }}
+  {{- if $.Values.job.podFailurePolicy }}
+  podFailurePolicy: {{- toYaml $.Values.job.podFailurePolicy | nindent 4 }}
+  {{- else if $job.podFailurePolicy }}
+  podFailurePolicy: {{- toYaml $job.podFailurePolicy | nindent 4 }}
+  {{- end }}
+  {{- $context :=  merge (dict "resourceType" "job" "name" $name "Chart" $.Chart "Root" $) $job }}
+  template: 
+  {{- include "chart.podTemplate" $context | nindent 4 }}
+
+{{- end }}
+{{- end }}

@@ -1,0 +1,70 @@
+appName: "mysql"
+appVersion: "6.3.6"
+
+image:
+  registry: docker.io
+  repository: mysql
+  tag: 5.6
+  port: 3306
+
+service:
+  enabled: true
+  headlessService: true
+
+PersistentVolumeClaim:
+  enabled: true
+  mountPVC: true
+  mountPath: "/var/lib/mysql"
+  accessMode: ReadWriteOnce
+  storageSize: 10Gi
+  storageClass: standard-rwo
+
+podDisruptionBudget:
+  enabled: true
+
+deployment:
+  enabled: true
+  replicas: 2
+  strategy: Recreate
+  envVariables:
+  - name: MYSQL_DATABASE
+    value: "test"
+  envSecrets:
+  - variable: MYSQL_ROOT_PASSWORD
+    secretName: mysql-password
+    secretKey: mysql_password
+  resources:
+    requests:
+      cpu: 1m
+      memory: 16Mi
+    limits:
+      cpu: 10m
+      memory: 32Mi
+
+  livenessProbe:
+    exec:
+      command: ["bash", "-c", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "ping"]
+
+  readinessProbe:
+    exec:
+      command: ["bash", "-c", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "select", "1"]
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - "mysql"
+          topologyKey: topology.kubernetes.io/zone
+
+secret:
+  enabled: true
+  secrets:
+    password:
+      data:
+        mysql_password: mysql_secret_password

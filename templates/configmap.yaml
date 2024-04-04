@@ -1,0 +1,27 @@
+
+{{- if .Values.configMap.enabled }}
+{{- range $nameSuffix, $data := .Values.configMap.configs }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app.name" $ }}-{{ $nameSuffix }}
+  namespace: {{ include "app.namespace" $ }}
+  labels:
+    {{- include "chart.commonLabels" $ | indent 4 }}
+    {{- if $.Values.configMap.labels }}
+    {{- range $key, $value := $.Values.configMap.labels }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+  annotations:
+    {{- include "chart.commonAnnotations" $ | indent 4 }}
+    {{- if $.Values.configMap.annotations }}
+    {{- range $key, $value := $.Values.configMap.annotations }}
+    {{$key}}: {{$value | quote}}
+    {{- end }}
+    {{- end }}
+data:
+  {{ tpl $data.data $ | indent 2 | trim }}
+{{- end }}
+{{- end }}
